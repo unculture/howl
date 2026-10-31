@@ -10,13 +10,39 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const songsDir = mkdtempSync(join(tmpdir(), 'howl-smoke-'));
 mkdirSync('test-output', { recursive: true });
 const env = { ...process.env, HOWL_SONGS_DIR: songsDir };
-const launch = () => electron.launch(exe ? { executablePath: exe, env } : { args: ['.'], env });
+// Skips the macOS permission prompt. The mic itself is replaced in the page below.
+const micArgs = ['--use-fake-device-for-media-stream'];
+const launch = () => electron.launch(exe ? { executablePath: exe, env, args: micArgs } : { args: ['.', ...micArgs], env });
+// A recording of three spoken lines becomes the mic, so the real VAD and Whisper pipeline runs on this machine.
+const useRecordingAsMic = (target) =>
+  target.evaluate(async (base64) => {
+    const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+    navigator.mediaDevices.getUserMedia = async () => {
+      const context = new AudioContext();
+      const buffer = await context.decodeAudioData(bytes.buffer.slice(0));
+      const source = context.createBufferSource();
+      source.buffer = buffer;
+      const out = context.createMediaStreamDestination();
+      source.connect(out);
+      source.start();
+      return out.stream;
+    };
+  }, readFileSync('tests/fixtures/three-lines.wav').toString('base64'));
 const check = (ok, message) => {
   if (!ok) throw new Error(message);
   console.log(`ok - ${message}`);
 };
 
+const blocked = [];
+const watchNetwork = (electronApp) => {
+  const read = (chunk) => {
+    for (const match of String(chunk).matchAll(/Blocked network request: (\S+)/g)) blocked.push(match[1]);
+  };
+  electronApp.process().stdout?.on('data', read);
+  electronApp.process().stderr?.on('data', read);
+};
 let app = await launch();
+watchNetwork(app);
 let page = await app.firstWindow();
 const errors = [];
 const listen = (p) => {
@@ -47,15 +73,31 @@ try {
   // ---- Words ----
   await page.waitForSelector(t('type-instead'));
   await shot('03-say-it-all');
-  await page.click(t('type-instead'));
-  await page.fill(t('line-input'), 'the pine trees whisper my name');
-  await page.keyboard.press('Enter');
-  for (const text of ['walking where the snow forgets my feet', 'and the river runs cold under me']) {
-    await page.click(t('type-line'));
+
+  // ---- Dictation: three spoken lines through VAD and Whisper, on this machine ----
+  const dictationStart = Date.now();
+  await page.waitForSelector(`${t('record')}:not([disabled])`, { timeout: 90000 });
+  console.log(`dictation ready after ${Date.now() - dictationStart}ms`);
+  await useRecordingAsMic(page);
+  await page.click(t('record'));
+  await page.waitForFunction(() => document.querySelectorAll('.say-line').length >= 3, null, { timeout: 60000 });
+  await shot('03b-dictated');
+  const said = await page.locator('.say-line').allInnerTexts();
+  console.log('heard', JSON.stringify(said));
+  check(said.length === 3, 'three spoken lines become three lines');
+  check(/pine trees/i.test(said[0]) && /river/i.test(said[1]) && /moon/i.test(said[2]), 'spoken lines arrive in order');
+  await page.click(t('record'));
+  await page.waitForSelector(t('line'), { timeout: 15000 });
+  console.log('last transcription ms', await page.evaluate(() => window.__howlProbe().lastTranscribeMs));
+  check((await page.locator(t('line')).count()) === 3, 'Stop switches to Your lines');
+
+  // Put known words in place for the steps below.
+  for (const [i, text] of ['the pine trees whisper my name', 'walking where the snow forgets my feet', 'and the river runs cold under me'].entries()) {
+    await page.locator(t('line')).nth(i).click({ position: { x: 300, y: 25 } });
+    await page.keyboard.press('Enter');
     await page.fill(t('line-input'), text);
     await page.keyboard.press('Enter');
   }
-  check((await page.locator(t('line')).count()) === 3, 'three typed lines appear');
 
   await page.locator(t('line')).nth(0).click({ position: { x: 300, y: 25 } });
   await page.waitForSelector(t('bit-count'));
@@ -187,6 +229,7 @@ try {
   check(saved.lines.length === 3 && saved.lines[0].tune.notes.length === 7, 'tune is in the saved song');
 
   app = await launch();
+  watchNetwork(app);
   page = await app.firstWindow();
   listen(page);
   await page.waitForSelector(t('song-card'), { timeout: 30000 });
@@ -203,6 +246,7 @@ try {
   await shot('10-reopened');
   await page.keyboard.press('Space');
 
+  check(blocked.length === 0, `no network requests were attempted${blocked.length ? `: ${blocked.join(' ')}` : ''}`);
   if (errors.length) throw new Error(`Page errors:\n${errors.join('\n')}`);
   console.log('Smoke test passed');
 } catch (err) {

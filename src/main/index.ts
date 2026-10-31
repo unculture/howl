@@ -106,7 +106,7 @@ function createWindow(): void {
     }
   });
   win.setMenuBarVisibility(false);
-  win.webContents.setVisualZoomLevelLimits(1, 1);
+  void win.webContents.setVisualZoomLevelLimits(1, 1).catch(() => undefined);
   win.once('ready-to-show', () => win.show());
   // Let the renderer save first. If it doesn't answer quickly, close anyway.
   let flushed = false;
@@ -139,7 +139,9 @@ ipcMain.handle('system:micStatus', () =>
   process.platform === 'win32' || process.platform === 'darwin' ? systemPreferences.getMediaAccessStatus('microphone') : 'granted'
 );
 ipcMain.handle('system:askMic', async () =>
-  process.platform === 'darwin' ? systemPreferences.askForMediaAccess('microphone') : true
+  process.platform === 'darwin' && !app.commandLine.hasSwitch('use-fake-device-for-media-stream')
+    ? systemPreferences.askForMediaAccess('microphone')
+    : true
 );
 ipcMain.handle('system:openMicSettings', () =>
   shell.openExternal(

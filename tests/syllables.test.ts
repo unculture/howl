@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { applyHerCasing, cleanUtterance } from '../src/renderer/speech/postprocess';
 import { joinBits, numberToWords, splitBit, textToSyllables } from '../src/renderer/speech/syllables';
 
 const split = (text: string) => textToSyllables(text).map((s) => s.text);
@@ -66,5 +67,41 @@ describe('syllables', () => {
     const two = textToSyllables('the moon');
     expect(joinBits(two, 0)).toBe(two); // Different words do not join.
     expect(splitBit(two, 0, 0)).toBe(two);
+  });
+});
+
+describe('cleaning what Whisper heard', () => {
+  test('trims, collapses spaces and drops trailing punctuation', () => {
+    expect(cleanUtterance('  the pine   trees whisper.  ')).toEqual(['the pine trees whisper']);
+    expect(cleanUtterance('is it you?')).toEqual(['is it you']);
+  });
+
+  test('keeps apostrophes and inner commas', () => {
+    expect(cleanUtterance("don't go, wolf.")).toEqual(["don't go, wolf"]);
+  });
+
+  test('drops bracketed noises', () => {
+    expect(cleanUtterance('[music]')).toEqual([]);
+    expect(cleanUtterance('(laughs) the moon *sighs*')).toEqual(['the moon']);
+  });
+
+  test.each(['Thank you.', 'Thanks for watching!', 'you', 'Bye.', '.'])('drops the hallucination %s', (text) => {
+    expect(cleanUtterance(text)).toEqual([]);
+  });
+
+  test('a long line splits at the comma nearest the middle', () => {
+    const text = 'the pine trees whisper my name all night long, and the river runs cold under me tonight';
+    expect(cleanUtterance(text)).toEqual(['the pine trees whisper my name all night long', 'and the river runs cold under me tonight']);
+  });
+
+  test('a long line with no comma stays whole', () => {
+    const text = 'one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen';
+    expect(cleanUtterance(text)).toEqual([text]);
+  });
+
+  test('lower-cases the first letter only when all her lines are lower-case', () => {
+    expect(applyHerCasing('The moon', ['the pine', 'a river'])).toBe('the moon');
+    expect(applyHerCasing('The moon', ['The pine'])).toBe('The moon');
+    expect(applyHerCasing('The moon', [])).toBe('The moon');
   });
 });

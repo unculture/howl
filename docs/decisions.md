@@ -4,6 +4,10 @@ Small design or implementation decisions made while building, for the designer t
 
 | Date | Decision | Why | Status |
 | --- | --- | --- | --- |
+| 2026-10-31 | Dictation runs on WASM only for now, not WebGPU | Spec says WebGPU when available. Whisper's q8 models are poorly supported on WebGPU and a GPU driver crash is the bigger risk for a first test. WASM met the 3 second target in testing. Revisit with fp32 models | For review |
+| 2026-10-31 | Whisper uses at most half the CPU cores (max 4) | Leaves room for the beat and pads while a line is being written down | For review |
+| 2026-10-31 | Known mishearings ("Thank you.", "you", etc.) are dropped whenever the whole utterance matches, at any length, and short utterances are otherwise kept | The spec's "< 1.0 s or the text is one of" read literally would drop any short real line such as "the moon" | For review |
+| 2026-10-31 | Any request to the network is refused by the app itself, and the launch check fails if one is attempted | The strongest way to keep "no network at runtime" true, and to catch hidden CDN loads on every build | For review |
 | 2026-10-31 | "1 line" and "1 bit to sing" are singular, beyond the deck's "{n} lines" and "{n} bits to sing" | "1 lines" reads as a mistake, which costs a dyslexic reader extra | For review |
 | 2026-10-31 | Tapping outside an edit field saves the text; only Escape cancels | Spec covers Enter and Escape but not blur; losing typed words would be worse | For review |
 | 2026-10-31 | Text size labels are small / medium / large / largest without "Aa", and aren't in the copy deck | Spec lists "Aa small / medium / large / largest" in §6.6 only; "Aa" adds nothing when read aloud | For review |

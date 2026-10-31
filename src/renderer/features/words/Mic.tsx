@@ -47,10 +47,10 @@ export function statusCopy(status: string): { status: string; hint: string } {
 
 export function MicDeniedHelp() {
   const denied = useDictation((s) => s.micDeniedByOs);
-  if (!denied || window.howl.system.platform !== 'darwin') return null;
+  if (!denied) return null;
   return (
     <div className="mic-help">
-      <p className="t-caption text-secondary">{copy.mic.deniedMac}</p>
+      {window.howl.system.platform === 'darwin' && <p className="t-caption text-secondary">{copy.mic.deniedMac}</p>}
       <button className="btn btn-outline" onClick={() => void window.howl.system.openMicSettings()}>{copy.mic.openSettings}</button>
     </div>
   );

@@ -1,10 +1,11 @@
 import * as Tone from 'tone';
 import { padTimings } from '../features/tune/Pads';
 import { engine } from './engine';
+import { useDictation } from '../speech/dictation';
 
 declare global {
   interface Window {
-    __howlProbe: () => { state: string; base: number; output: number; peak: number; queuedMs: number[]; handlerMs: number[] };
+    __howlProbe: () => { state: string; base: number; output: number; peak: number; queuedMs: number[]; handlerMs: number[]; lastTranscribeMs: number };
   }
 }
 
@@ -26,7 +27,8 @@ export function installProbe(): void {
       output: engine.outputLatency(),
       peak: data.reduce((max, v) => Math.max(max, Math.abs(v)), 0),
       queuedMs: padTimings.map((t) => t.queued),
-      handlerMs: padTimings.map((t) => t.handler)
+      handlerMs: padTimings.map((t) => t.handler),
+      lastTranscribeMs: useDictation.getState().lastMs
     };
   };
 }
