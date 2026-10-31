@@ -9,6 +9,19 @@ This document is the contract for how howl looks, moves, sounds and speaks. Any 
 - Paper file (visual reference, same tokens): *Songwriting App — Mood Directions*, pages **Page 1** (mood boards) and **Wireframes** (screens)
 - Wireframe exports: [`docs/wireframes/`](../wireframes/)
 
+### See it
+
+The same system as visual boards (Paper page **Design system**; PNG exports here):
+
+| Board | |
+| --- | --- |
+| Colour and type | ![](ds-1-colour-and-type.png) |
+| Space, shape, glow, icons, layout | ![](ds-2-space-shape-glow-icons-layout.png) |
+| Components and states | ![](ds-3-components.png) |
+| Motion and writing | ![](ds-4-motion-and-writing.png) |
+
+If a board and this document disagree, this document and `tokens.json` win; fix the board.
+
 ---
 
 ## 1. Who it is for, and what that means
