@@ -17,13 +17,11 @@ jobs:
           node-version: lts/*
           cache: npm
       - run: npm ci
-      - name: Install the published build
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release download tune-toy-latest -p howl-setup.exe -D soak
-          Start-Process -FilePath soak\howl-setup.exe -ArgumentList '/S' -Wait
+      - run: npm run models:fetch
+      - run: npm run build:win
       - name: Launch it repeatedly
-        shell: pwsh
-        run: node scripts/launch-soak.mjs "$env:LOCALAPPDATA\Programs\howl\howl.exe"
+        shell: bash
+        env:
+          DEBUG: pw:protocol,pw:browser
+          SOAK_LOG: soak-debug.log
+        run: node scripts/launch-soak.mjs release/win-unpacked/howl.exe 10 10 2> soak-debug.log

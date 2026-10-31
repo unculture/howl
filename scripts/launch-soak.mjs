@@ -1,7 +1,7 @@
 // Launches the app over and over to tell an app hang apart from a test harness hang.
 // Usage: node scripts/launch-soak.mjs path/to/howl.exe [plainRuns] [harnessRuns]
 import { spawn } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { _electron as electron } from 'playwright';
@@ -78,6 +78,9 @@ for (let i = 0; i < Number(harnessRuns); i++) {
   } catch (err) {
     harnessHangs++;
     console.log(`harness ${i + 1}: HUNG (${String(err.message).split('\n')[0]})`);
+    // With DEBUG=pw:protocol and stderr sent to SOAK_LOG, show where the first hang stopped.
+    const log = process.env.SOAK_LOG;
+    if (harnessHangs === 1 && log && existsSync(log)) console.log(readFileSync(log, 'utf8').split('\n').slice(-45).map((line) => line.slice(0, 260)).join('\n'));
   }
   await sleep(500);
 }
