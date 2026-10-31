@@ -1,0 +1,143 @@
+/* GENERATED from design/tokens.json by scripts/build-tokens.mjs — do not edit by hand. */
+/* Theme: midnight-fjord · tokens v0.1.0 */
+:root {
+  --color-bg-night: #07090D;
+  --color-bg-scrim: #040508;
+  --color-surface-sunken: #0D1117;
+  --color-surface-raised: #11151C;
+  --color-surface-control: #1B2029;
+  --color-border-subtle: #1E242E;
+  --color-border-default: #2A313C;
+  --color-border-strong: #3A424F;
+  --color-text-primary: #EDEFF2;
+  --color-text-secondary: #B9BFC9;
+  --color-text-tertiary: #8B93A1;
+  --color-text-on-accent: #07090D;
+  --color-text-decorative: #5A6270;
+  --color-accent-aurora: #FF5BA8;
+  --color-accent-aurora-soft: rgba(255, 91, 168, 0.18);
+  --color-accent-aurora-glow: rgba(255, 91, 168, 0.55);
+  --color-accent-green: #8EF0C6;
+  --color-accent-green-glow: rgba(142, 240, 198, 0.6);
+  --color-accent-moonlight: #EDEFF2;
+  --color-layer-words: #1B2029;
+  --color-layer-tune: #FF5BA8;
+  --color-layer-beat: #3A424F;
+  --color-layer-backing: #8EF0C6;
+  --color-layer-voice: #EDEFF2;
+  --color-state-danger: #FF7A7A;
+  --color-state-warning: #FFD08A;
+  --color-state-success: #8EF0C6;
+  --color-mood-wolf-moon: radial-gradient(circle at 65% 30%, #EDEFF2 0 12%, #FF5BA8 14%, #3A1530 70%);
+  --color-mood-snowfall: radial-gradient(circle at 40% 35%, #FFFFFF 0 8%, #B9C6D6 30%, #2A3442 80%);
+  --color-mood-bonfire: radial-gradient(circle at 50% 70%, #FFD08A 0 12%, #E0663A 40%, #3A1A10 85%);
+  --color-mood-running: linear-gradient(135deg, #8EF0C6 0%, #3BA7FF 55%, #11151C 100%);
+  --color-atmosphere-aurora-glow-field: radial-gradient(ellipse at center, rgba(255,91,168,0.22) 0%, rgba(142,240,198,0.06) 40%, rgba(7,9,13,0) 70%);
+  --font-ui: 'Lexend', system-ui, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --text-display-xl-size: 52px;
+  --text-display-xl-line: 56px;
+  --text-display-xl-weight: 300;
+  --text-display-l-size: 40px;
+  --text-display-l-line: 44px;
+  --text-display-l-weight: 300;
+  --text-display-m-size: 26px;
+  --text-display-m-line: 32px;
+  --text-display-m-weight: 400;
+  --text-lyric-l-size: 28px;
+  --text-lyric-l-line: 40px;
+  --text-lyric-l-weight: 400;
+  --text-lyric-m-size: 26px;
+  --text-lyric-m-line: 36px;
+  --text-lyric-m-weight: 400;
+  --text-lyric-s-size: 20px;
+  --text-lyric-s-line: 28px;
+  --text-lyric-s-weight: 400;
+  --text-title-size: 20px;
+  --text-title-line: 28px;
+  --text-title-weight: 600;
+  --text-heading-size: 17px;
+  --text-heading-line: 24px;
+  --text-heading-weight: 600;
+  --text-body-size: 16px;
+  --text-body-line: 24px;
+  --text-body-weight: 400;
+  --text-label-size: 15px;
+  --text-label-line: 20px;
+  --text-label-weight: 500;
+  --text-caption-size: 14px;
+  --text-caption-line: 20px;
+  --text-caption-weight: 400;
+  --text-note-label-size: 13px;
+  --text-note-label-line: 16px;
+  --text-note-label-weight: 600;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  --radius-pill: 999px;
+  --size-touch-min: 48px;
+  --size-top-bar-height: 76px;
+  --size-rail-width: 96px;
+  --size-rail-item-height: 68px;
+  --size-parts-strip-height: 84px;
+  --size-content-pad-x: 32px;
+  --size-content-pad-y: 28px;
+  --size-pad-height: 120px;
+  --size-record-button: 88px;
+  --size-icon-sm: 18px;
+  --size-icon-md: 24px;
+  --glow-pad: 0 0 28px rgba(255, 91, 168, 0.6);
+  --glow-record: 0 0 40px rgba(255, 91, 168, 0.55);
+  --glow-syllable: 0 0 18px rgba(255, 91, 168, 0.35);
+  --glow-playhead: 0 0 12px #FF5BA8;
+  --glow-ideas: 0 0 10px #8EF0C6;
+  --duration-instant: 60ms;
+  --duration-quick: 140ms;
+  --duration-base: 220ms;
+  --duration-slow: 360ms;
+  --duration-ambient: 2400ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --z-base: 0;
+  --z-glow: 1;
+  --z-content: 2;
+  --z-sticky: 10;
+  --z-sheet: 100;
+  --z-toast: 200;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --duration-ambient: 0ms; }
+}
+
+.t-display-xl { font-family: var(--font-display); font-size: var(--text-display-xl-size); line-height: var(--text-display-xl-line); font-weight: var(--text-display-xl-weight); font-style: italic; letter-spacing: -0.02em; }
+.t-display-l { font-family: var(--font-display); font-size: var(--text-display-l-size); line-height: var(--text-display-l-line); font-weight: var(--text-display-l-weight); font-style: italic; letter-spacing: -0.01em; }
+.t-display-m { font-family: var(--font-display); font-size: var(--text-display-m-size); line-height: var(--text-display-m-line); font-weight: var(--text-display-m-weight); font-style: italic; }
+.t-lyric-l { font-family: var(--font-ui); font-size: var(--text-lyric-l-size); line-height: var(--text-lyric-l-line); font-weight: var(--text-lyric-l-weight); }
+.t-lyric-m { font-family: var(--font-ui); font-size: var(--text-lyric-m-size); line-height: var(--text-lyric-m-line); font-weight: var(--text-lyric-m-weight); }
+.t-lyric-s { font-family: var(--font-ui); font-size: var(--text-lyric-s-size); line-height: var(--text-lyric-s-line); font-weight: var(--text-lyric-s-weight); }
+.t-title { font-family: var(--font-ui); font-size: var(--text-title-size); line-height: var(--text-title-line); font-weight: var(--text-title-weight); }
+.t-heading { font-family: var(--font-ui); font-size: var(--text-heading-size); line-height: var(--text-heading-line); font-weight: var(--text-heading-weight); }
+.t-body { font-family: var(--font-ui); font-size: var(--text-body-size); line-height: var(--text-body-line); font-weight: var(--text-body-weight); }
+.t-label { font-family: var(--font-ui); font-size: var(--text-label-size); line-height: var(--text-label-line); font-weight: var(--text-label-weight); }
+.t-caption { font-family: var(--font-ui); font-size: var(--text-caption-size); line-height: var(--text-caption-line); font-weight: var(--text-caption-weight); }
+.t-note-label { font-family: var(--font-ui); font-size: var(--text-note-label-size); line-height: var(--text-note-label-line); font-weight: var(--text-note-label-weight); }
