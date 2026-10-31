@@ -318,4 +318,5 @@ She reads well, but it costs her. Every word must be worth it.
 
 ### Changelog
 
+- **0.1.1** (31 Oct 2026) — added size and opacity tokens for values the slice 1 spec names but tokens lacked.
 - **0.1.0** (31 Oct 2026) — first version, extracted from the v2 wireframes.

@@ -32,6 +32,7 @@ for (const [k, v] of Object.entries(t.size)) if (typeof v.value === 'number') li
 for (const [k, v] of Object.entries(t.elevation)) if (v && v.value) lines.push(`  --${kebab(k)}: ${v.value};`);
 for (const [k, v] of Object.entries(t.motion.duration)) lines.push(`  --duration-${k}: ${v.value}ms;`);
 for (const [k, v] of Object.entries(t.motion.easing)) lines.push(`  --ease-${kebab(k)}: ${v.value};`);
+for (const [k, v] of Object.entries(t.opacity)) lines.push(`  --opacity-${kebab(k)}: ${v};`);
 for (const [k, v] of Object.entries(t.z)) lines.push(`  --z-${k}: ${v};`);
 
 // Ready-made text style classes

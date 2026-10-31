@@ -1,5 +1,5 @@
 /* GENERATED from design/tokens.json by scripts/build-tokens.mjs — do not edit by hand. */
-/* Theme: midnight-fjord · tokens v0.1.0 */
+/* Theme: midnight-fjord · tokens v0.1.1 */
 :root {
   --color-bg-night: #07090D;
   --color-bg-scrim: #040508;
@@ -103,6 +103,35 @@
   --size-record-button: 88px;
   --size-icon-sm: 18px;
   --size-icon-md: 24px;
+  --size-button-height: 48px;
+  --size-button-large: 60px;
+  --size-button-tall: 52px;
+  --size-chip-height: 44px;
+  --size-speaker-button: 52px;
+  --size-transport-play: 52px;
+  --size-line-row: 60px;
+  --size-song-tile: 258px;
+  --size-side-column: 280px;
+  --size-roll-height: 240px;
+  --size-roll-min-height: 180px;
+  --size-note-block: 24px;
+  --size-pad-arrow: 56px;
+  --size-pad-min-height: 88px;
+  --size-mood-orb: 56px;
+  --size-mood-card: 150px;
+  --size-mood-compact: 64px;
+  --size-sheet-max: 760px;
+  --size-content-max: 1440px;
+  --size-badge: 28px;
+  --size-join-dot: 14px;
+  --size-count-number: 56px;
+  --size-count-dot: 16px;
+  --size-border-thin: 1.5px;
+  --size-playhead: 2px;
+  --size-focus-outline: 2px;
+  --size-focus-offset: 3px;
+  --size-window-controls-win: 148px;
+  --size-window-controls-mac: 72px;
   --glow-pad: 0 0 28px rgba(255, 91, 168, 0.6);
   --glow-record: 0 0 40px rgba(255, 91, 168, 0.55);
   --glow-syllable: 0 0 18px rgba(255, 91, 168, 0.35);
@@ -117,6 +146,13 @@
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --opacity-disabled: 0.4;
+  --opacity-bend: 0.7;
+  --opacity-scrim: 0.7;
+  --opacity-shimmer-low: 0.4;
+  --opacity-shimmer-high: 0.8;
+  --opacity-glow-low: 0.35;
+  --opacity-glow-high: 0.6;
   --z-base: 0;
   --z-glow: 1;
   --z-content: 2;

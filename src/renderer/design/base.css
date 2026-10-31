@@ -13,3 +13,19 @@
 }
 html, body, #root { height: 100%; margin: 0; }
 body { background: var(--color-bg-night); color: var(--color-text-primary); font-family: var(--font-ui); }
+html, body { overflow: hidden; overscroll-behavior: none; }
+body { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+* { box-sizing: border-box; }
+h1, h2, h3, p { margin: 0; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; touch-action: manipulation; }
+button:disabled { cursor: default; }
+input, textarea { font: inherit; color: inherit; -webkit-user-select: text; user-select: text; }
+:focus { outline: none; }
+:focus-visible { outline: var(--size-focus-outline) solid var(--color-accent-aurora); outline-offset: var(--size-focus-offset); }
+:root { --lyric-scale: 1; }
+.t-lyric-l { font-size: calc(var(--text-lyric-l-size) * var(--lyric-scale)); line-height: calc(var(--text-lyric-l-line) * var(--lyric-scale)); }
+.t-lyric-m { font-size: calc(var(--text-lyric-m-size) * var(--lyric-scale)); line-height: calc(var(--text-lyric-m-line) * var(--lyric-scale)); }
+.t-lyric-s { font-size: calc(var(--text-lyric-s-size) * var(--lyric-scale)); line-height: calc(var(--text-lyric-s-line) * var(--lyric-scale)); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-tertiary { color: var(--color-text-tertiary); }
+.flex-1 { flex: 1; }
