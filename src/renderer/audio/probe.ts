@@ -2,12 +2,16 @@ import * as Tone from 'tone';
 import { padTimings } from '../features/tune/Pads';
 import { engine } from './engine';
 import { useDictation } from '../speech/dictation';
+import { samplesState } from './samples';
 
 declare global {
   interface Window {
-    __howlProbe: () => { state: string; base: number; output: number; peak: number; queuedMs: number[]; handlerMs: number[]; lastTranscribeMs: number; position: number; now: number; running: boolean };
+    __howlEngine: typeof engine;
+    __howlProbe: () => { state: string; base: number; output: number; peak: number; queuedMs: number[]; handlerMs: number[]; lastTranscribeMs: number; position: number; now: number; running: boolean; samples: ReturnType<typeof samplesState> };
   }
 }
+
+window.__howlEngine = engine;
 
 /** Read-only measurements for the automated checks: is sound coming out, and how fast do pads respond. */
 export function installProbe(): void {
@@ -31,7 +35,8 @@ export function installProbe(): void {
       lastTranscribeMs: useDictation.getState().lastMs,
       position: engine.position(),
       now: raw.currentTime,
-      running: engine.isRunning
+      running: engine.isRunning,
+      samples: samplesState()
     };
   };
 }

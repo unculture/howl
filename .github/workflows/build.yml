@@ -42,12 +42,36 @@ jobs:
       - name: Launch the packaged app
         run: npm run test:smoke -- release/win-unpacked/howl.exe
 
-      - name: Install with the real installer and launch the installed app
+      - name: Upgrade over the published build while it is running
         shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          Remove-Item -Recurse -Force "$env:APPDATA\howl" -ErrorAction SilentlyContinue
+          $dir = "$env:LOCALAPPDATA\Programs\howl"
+          $exe = "$dir\howl.exe"
+          gh release download tune-toy-latest -p howl-setup.exe -D previous
+          Start-Process -FilePath previous\howl-setup.exe -ArgumentList '/S' -Wait
+          if (!(Test-Path $exe)) { throw 'The published build did not install' }
+          # A leftover file proves the old version is really removed, and a song proves hers survive.
+          Set-Content "$dir\left-by-old-version.txt" 'old'
+          $songs = [Environment]::GetFolderPath('MyDocuments') + '\howl'
+          New-Item -ItemType Directory -Force $songs | Out-Null
+          Set-Content "$songs\her song.howl" 'keep me'
+          $old = Start-Process -FilePath $exe -PassThru
+          Start-Sleep -Seconds 4
           Start-Process -FilePath release\howl-setup.exe -ArgumentList '/S' -Wait
-          node scripts/launch-soak.mjs "$env:LOCALAPPDATA\Programs\howl\howl.exe" 10 0
+          Start-Sleep -Seconds 2
+          if (Test-Path "$dir\left-by-old-version.txt") { throw 'The old version was not removed' }
+          if (!(Test-Path $exe)) { throw 'The new version did not install' }
+          $want = (Get-Content package.json | ConvertFrom-Json).version
+          $got = (Get-Item $exe).VersionInfo.ProductVersion
+          if ($got -ne $want) { throw "Installed version is $got, wanted $want" }
+          $entries = @(Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*' -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -like 'howl*' })
+          if ($entries.Count -ne 1) { throw "Windows lists $($entries.Count) copies of howl" }
+          if ((Get-Content "$songs\her song.howl") -ne 'keep me') { throw 'Her song was changed' }
+          Remove-Item "$songs\her song.howl"
+          Write-Output "Upgraded to $got. One copy listed, old files gone, her song kept."
+          node scripts/launch-soak.mjs $exe 10 0
 
       - name: Upload smoke test screenshots
         if: always()

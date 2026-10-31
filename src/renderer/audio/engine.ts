@@ -1,13 +1,14 @@
 import * as Tone from 'tone';
 import type { Mood, Song, SoundId, Tune } from '../../shared/song';
-import { MOODS, droneNotes, type DrumName } from '../music/moods';
+import { MOODS, padNotes, type DrumName } from '../music/moods';
+import { detuneFor, pickZone, type Zone } from '../music/zones';
+import { bufferFor, hits, instruments, rawContext, type HitName, type InstrumentName } from './samples';
 
 // Pads bypass the Transport and its look-ahead entirely (see attack below), so this only affects the beat.
 Tone.setContext(new Tone.Context({ latencyHint: 'interactive', lookAhead: 0.05, updateInterval: 0.02 }));
 
 const PPQ = Tone.getTransport().PPQ;
 const STEP_TICKS = PPQ / 4;
-const hz = (midi: number) => Tone.Frequency(midi, 'midi').toFrequency();
 
 interface Voice {
   attack(midi: number, time: number): void;
@@ -15,121 +16,144 @@ interface Voice {
   release(time: number): void;
 }
 
-const REVERB: Record<SoundId, { decay: number; wet: number }> = {
-  glassBells: { decay: 2.8, wet: 0.35 },
-  softKeys: { decay: 2.2, wet: 0.25 },
-  breathy: { decay: 2.5, wet: 0.3 }
+/** Each sound is one real instrument, recorded. `release` is how long it rings on after she lets go. */
+const SOUNDS: Record<SoundId, { instrument: InstrumentName; gain: number; release: number; lowpass?: number; decay: number; wet: number }> = {
+  glassBells: { instrument: 'vibes', gain: 1.15, release: 0.9, decay: 2.8, wet: 0.3 },
+  softKeys: { instrument: 'piano', gain: 1.7, release: 0.4, lowpass: 3800, decay: 2.2, wet: 0.22 },
+  breathy: { instrument: 'flute', gain: 1.3, release: 0.16, decay: 2.5, wet: 0.28 },
+  strum: { instrument: 'strum', gain: 0.85, release: 0.7, decay: 1.2, wet: 0.14 }
 };
 
-function makeReverb(sound: SoundId, out: Tone.ToneAudioNode): Tone.Reverb {
-  return new Tone.Reverb(REVERB[sound]).connect(out);
-}
+const rateFor = (zone: Zone, midi: number): number => 2 ** (detuneFor(zone, midi) / 1200);
 
-function makeVoice(sound: SoundId, reverb: Tone.Reverb): Voice {
-  if (sound === 'glassBells') {
-    const synth = new Tone.FMSynth({
-      harmonicity: 3.01,
-      modulationIndex: 14,
-      envelope: { attack: 0.005, decay: 1.2, sustain: 0, release: 1.2 },
-      modulationEnvelope: { attack: 0.005, decay: 0.4, sustain: 0, release: 0.8 },
-      volume: -8
-    }).connect(reverb);
-    return monoVoice(synth);
+interface Sounding { source: AudioBufferSourceNode; gain: GainNode; zone: Zone; }
+
+function play(zone: Zone, midi: number, level: number, time: number, out: Tone.ToneAudioNode): Sounding | null {
+  const buffer = bufferFor(zone.file);
+  if (!buffer) return null;
+  const raw = rawContext();
+  const source = raw.createBufferSource();
+  source.buffer = buffer;
+  source.playbackRate.value = rateFor(zone, midi); // Tone's wrapped context has no detune on buffer sources.
+  if (zone.loopEnd) {
+    source.loop = true;
+    source.loopStart = zone.loopStart ?? 0;
+    source.loopEnd = zone.loopEnd;
   }
-  if (sound === 'softKeys') {
-    const filter = new Tone.Filter(2400, 'lowpass').connect(reverb);
-    const synth = new Tone.Synth({
-      oscillator: { type: 'triangle' },
-      envelope: { attack: 0.01, decay: 0.6, sustain: 0.35, release: 0.8 },
-      volume: -3
-    }).connect(filter);
-    return monoVoice(synth);
+  const gain = raw.createGain();
+  gain.gain.value = level * zone.gain;
+  source.connect(gain);
+  Tone.connect(gain as unknown as Parameters<typeof Tone.connect>[0], out);
+  source.onended = () => gain.disconnect();
+  source.start(time);
+  return { source, gain, zone };
+}
+
+function letGo(note: Sounding, time: number, seconds: number): void {
+  note.gain.gain.cancelScheduledValues(time);
+  note.gain.gain.setTargetAtTime(0, time, seconds / 3);
+  note.source.stop(time + seconds * 2);
+}
+
+/** One note at a time. A released note rings on, as a real instrument does, while the next one starts. */
+class SampleVoice implements Voice {
+  private current: Sounding | null = null;
+  private readonly zones: Zone[];
+  private readonly level: number;
+  private readonly ring: number;
+  private readonly input: Tone.Gain;
+
+  constructor(sound: SoundId, reverb: Tone.Reverb) {
+    const spec = SOUNDS[sound];
+    this.zones = instruments[spec.instrument];
+    this.level = spec.gain;
+    this.ring = spec.release;
+    this.input = new Tone.Gain(1);
+    if (spec.lowpass) this.input.chain(new Tone.Filter(spec.lowpass, 'lowpass'), reverb);
+    else this.input.connect(reverb);
   }
-  const chorus = new Tone.Chorus({ frequency: 1.2, delayTime: 3.5, depth: 0.5, wet: 0.5 }).start().connect(reverb);
-  const filter = new Tone.Filter({ frequency: 1400, type: 'lowpass', Q: 1 }).connect(chorus);
-  const envelope = { attack: 0.06, decay: 0.3, sustain: 0.7, release: 0.6 };
-  const synth = new Tone.Synth({ oscillator: { type: 'sawtooth' }, envelope, volume: -9 }).connect(filter);
-  const air = new Tone.NoiseSynth({ noise: { type: 'pink' }, envelope, volume: -30 }).connect(filter);
-  const voice = monoVoice(synth);
-  return {
-    attack(midi, time) {
-      voice.attack(midi, time);
-      air.triggerAttack(time);
-    },
-    bend: voice.bend,
-    release(time) {
-      voice.release(time);
-      air.triggerRelease(time);
-    }
-  };
-}
 
-function monoVoice(synth: Tone.Synth | Tone.FMSynth): Voice {
-  return {
-    attack(midi, time) {
-      synth.portamento = 0; // A new bit starts cleanly; only bends glide.
-      synth.triggerAttack(hz(midi), time);
-    },
-    bend(midi, time) {
-      synth.portamento = 0.04;
-      synth.setNote(hz(midi), time);
-    },
-    release(time) {
-      synth.triggerRelease(time);
-    }
-  };
-}
+  attack(midi: number, time: number): void {
+    this.release(time);
+    this.current = play(pickZone(this.zones, midi), midi, this.level, time, this.input);
+  }
 
-class Drums {
-  private readonly bus = new Tone.Gain(0.8).toDestination();
-  private readonly boom = new Tone.MembraneSynth({
-    pitchDecay: 0.04, octaves: 5, envelope: { attack: 0.002, decay: 0.32, sustain: 0, release: 0.1 }, volume: -8
-  }).connect(this.bus);
-  private readonly clapFilter = new Tone.Filter(1800, 'bandpass').connect(this.bus);
-  private readonly clap = new Tone.NoiseSynth({
-    noise: { type: 'white' }, envelope: { attack: 0.002, decay: 0.14, sustain: 0, release: 0.05 }, volume: -14
-  }).connect(this.clapFilter);
-  private readonly tickFilter = new Tone.Filter(7500, 'highpass').connect(this.bus);
-  private readonly tick = new Tone.NoiseSynth({
-    noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.03, sustain: 0, release: 0.01 }, volume: -22
-  }).connect(this.tickFilter);
-  private readonly shakerFilter = new Tone.Filter(5200, 'highpass').connect(this.bus);
-  private readonly shaker = new Tone.NoiseSynth({
-    noise: { type: 'pink' }, envelope: { attack: 0.008, decay: 0.07, sustain: 0, release: 0.02 }, volume: -20
-  }).connect(this.shakerFilter);
+  bend(midi: number, time: number): void {
+    if (!this.current) return;
+    this.current.source.playbackRate.setTargetAtTime(rateFor(this.current.zone, midi), time, 0.015);
+  }
 
-  hit(name: DrumName, time: number, velocity: number): void {
-    if (name === 'boom') this.boom.triggerAttackRelease(52, '16n', time, velocity);
-    else this[name].triggerAttackRelease('32n', time, velocity);
+  release(time: number): void {
+    if (!this.current) return;
+    letGo(this.current, time, this.ring);
+    this.current = null;
   }
 }
 
-class Drone {
-  private readonly gain = new Tone.Gain(0).toDestination();
-  private readonly filter = new Tone.Filter(520, 'lowpass').connect(this.gain);
-  private readonly a = new Tone.Oscillator({ type: 'triangle', frequency: 220, volume: -24 }).connect(this.filter);
-  private readonly b = new Tone.Oscillator({ type: 'sine', frequency: 330, volume: -24 }).connect(this.filter);
-  private running = false;
+/** Each mood has its own kit, played in its own room. */
+class Kit {
+  private readonly next = new Map<string, number>();
+
+  hit(name: HitName, level: number, time: number, out: Tone.ToneAudioNode): void {
+    const takes = hits[name];
+    const index = this.next.get(name) ?? 0;
+    this.next.set(name, (index + 1) % takes.length);
+    const take = takes[index];
+    const zone = { midi: 60, file: take.file, cents: 0, gain: take.gain };
+    play(zone, 60, level, time, out);
+  }
+}
+
+/** What sits under the tune: held strings, a plucked bass or a pulsing cello, depending on the mood. */
+class Bed {
+  private readonly gain: Tone.Gain;
+  private held: Sounding[] = [];
+  private pulseIndex = 0;
+
+  constructor(private readonly rooms: (mood: Mood) => Tone.Reverb) {
+    this.gain = new Tone.Gain(0);
+  }
+
+  private mood: Mood = 'wolfMoon';
 
   setMood(mood: Mood): void {
-    const [root, fifth] = droneNotes(mood);
-    this.a.frequency.value = hz(root);
-    this.b.frequency.value = hz(fifth);
+    if (mood !== this.mood) this.stopHeld();
+    this.gain.disconnect();
+    this.gain.connect(this.rooms(mood));
+    this.mood = mood;
+    this.pulseIndex = 0;
   }
 
   fadeIn(seconds: number): void {
-    if (!this.running) {
-      this.a.start();
-      this.b.start();
-      this.running = true;
+    const sustain = MOODS[this.mood].sustain;
+    if (sustain && this.held.length === 0) {
+      const now = Tone.immediate();
+      for (const midi of sustain.notes) {
+        const note = play(pickZone(instruments[sustain.instrument], midi), midi, sustain.gain, now, this.gain);
+        if (note) this.held.push(note);
+      }
     }
     this.gain.gain.cancelScheduledValues(Tone.immediate());
     this.gain.gain.rampTo(1, seconds);
   }
 
+  pulse(step: number, time: number): void {
+    const pulse = MOODS[this.mood].pulse;
+    if (!pulse || pulse.pattern[step] !== 'x') return;
+    const midi = pulse.notes[this.pulseIndex++ % pulse.notes.length];
+    play(pickZone(instruments[pulse.instrument], midi), midi, pulse.gain, time, this.gain);
+  }
+
+  private stopHeld(): void {
+    const now = Tone.immediate();
+    for (const note of this.held) letGo(note, now, 0.5);
+    this.held = [];
+  }
+
   fadeOut(): void {
     this.gain.gain.cancelScheduledValues(Tone.immediate());
     this.gain.gain.rampTo(0, 0.4);
+    this.stopHeld();
   }
 }
 
@@ -156,12 +180,12 @@ export function songSpans(song: Song): SongSpan[] {
 }
 
 class AudioEngine {
-  private readonly master = new Tone.Gain(1).toDestination();
-  private readonly drums = new Drums();
-  private readonly drone = new Drone();
-  private readonly click = new Tone.MembraneSynth({
-    pitchDecay: 0.008, octaves: 2, envelope: { attack: 0.001, decay: 0.06, sustain: 0, release: 0.02 }, volume: -18
-  }).toDestination();
+  // A gentle saturator with no look-ahead, so pads stay instant and a loud moment rounds off instead of clipping.
+  readonly master = new Tone.Gain(0.8);
+  private readonly saturator = new Tone.WaveShaper((v) => Math.tanh(v), 4096);
+  private readonly kit = new Kit();
+  private readonly moodRooms = new Map<Mood, Tone.Reverb>();
+  private readonly bed = new Bed((mood) => this.room(mood));
   private readonly reverbs = new Map<SoundId, Tone.Reverb>();
   private readonly voices = new Map<SoundId, Voice>();
   private readonly playbackVoices = new Map<SoundId, Voice>();
@@ -174,6 +198,7 @@ class AudioEngine {
   onEnded: (() => void) | undefined;
 
   constructor() {
+    this.master.chain(this.saturator, Tone.getDestination());
     const transport = Tone.getTransport();
     transport.timeSignature = 4;
     transport.scheduleRepeat((time) => this.step(time), '16n', 0);
@@ -188,10 +213,19 @@ class AudioEngine {
     if (Tone.getContext().state !== 'running') await Tone.start();
   }
 
+  private room(mood: Mood): Tone.Reverb {
+    let room = this.moodRooms.get(mood);
+    if (!room) {
+      room = new Tone.Reverb(MOODS[mood].room).connect(this.master);
+      this.moodRooms.set(mood, room);
+    }
+    return room;
+  }
+
   private reverb(sound: SoundId): Tone.Reverb {
     let reverb = this.reverbs.get(sound);
     if (!reverb) {
-      reverb = makeReverb(sound, this.master);
+      reverb = new Tone.Reverb({ decay: SOUNDS[sound].decay, wet: SOUNDS[sound].wet }).connect(this.master);
       this.reverbs.set(sound, reverb);
     }
     return reverb;
@@ -200,7 +234,7 @@ class AudioEngine {
   private voice(sound: SoundId): Voice {
     let voice = this.voices.get(sound);
     if (!voice) {
-      voice = makeVoice(sound, this.reverb(sound));
+      voice = new SampleVoice(sound, this.reverb(sound));
       this.voices.set(sound, voice);
     }
     return voice;
@@ -209,7 +243,7 @@ class AudioEngine {
   private playbackVoice(sound: SoundId): Voice {
     let voice = this.playbackVoices.get(sound);
     if (!voice) {
-      voice = makeVoice(sound, this.reverb(sound));
+      voice = new SampleVoice(sound, this.reverb(sound));
       this.playbackVoices.set(sound, voice);
     }
     return voice;
@@ -299,8 +333,8 @@ class AudioEngine {
     transport.position = 0;
     transport.bpm.value = bpm;
     this.plan = plan;
-    this.drone.setMood(mood);
-    if (this.humOn) this.drone.fadeIn(droneSeconds);
+    this.bed.setMood(mood);
+    if (this.humOn) this.bed.fadeIn(droneSeconds);
     void this.resume();
     this.startedAt = Tone.now() + 0.06;
     transport.start(this.startedAt);
@@ -337,12 +371,13 @@ class AudioEngine {
     this.begin({ kind: 'song', song }, song.mood, song.bpm, 0.2);
   }
 
-  /** Beat-based preview for a mood card: its beat, drone and a short phrase of pad notes, for 4 seconds. */
-  previewMood(mood: Mood, notes: number[]): void {
+  /** Lets a mood card show what it's like: its instrument, kit and bed, for 4 seconds. */
+  previewMood(mood: Mood): void {
     const info = MOODS[mood];
+    const pads = padNotes(mood, 5, 0);
     const tune: Tune = {
       bars: 2,
-      notes: notes.map((midi, i) => ({ syllableId: String(i), segments: [{ start: i, duration: 0.9, midi }] }))
+      notes: info.preview.map(([pad, start, duration], i) => ({ syllableId: String(i), segments: [{ start, duration, midi: pads[pad] }] }))
     };
     this.startOnce(mood, info.sound, info.bpm, tune);
     window.clearTimeout(this.previewTimer);
@@ -355,7 +390,7 @@ class AudioEngine {
     transport.stop();
     transport.position = 0;
     this.plan = { kind: 'none' };
-    this.drone.fadeOut();
+    this.bed.fadeOut();
     for (const voice of this.playbackVoices.values()) voice.release(Tone.immediate());
   }
 
@@ -370,8 +405,8 @@ class AudioEngine {
 
   setHum(on: boolean): void {
     this.humOn = on;
-    if (!on) this.drone.fadeOut();
-    else if (this.isRunning) this.drone.fadeIn(0.4);
+    if (!on) this.bed.fadeOut();
+    else if (this.isRunning) this.bed.fadeIn(0.4);
   }
 
   // ---- Sequencer: runs every sixteenth of a beat-based bar ----
@@ -385,7 +420,7 @@ class AudioEngine {
     switch (plan.kind) {
       case 'take': {
         if (absBeat < plan.originBeat) {
-          if (Number.isInteger(absBeat)) this.click.triggerAttackRelease(absBeat === 0 ? 'G5' : 'D5', '32n', time);
+          if (Number.isInteger(absBeat)) this.kit.hit('woodblock', absBeat === 0 ? 0.4 : 0.26, time, this.master);
           return;
         }
         this.playDrums(plan.mood, absBeat - plan.originBeat, time);
@@ -436,12 +471,21 @@ class AudioEngine {
 
   private playDrums(mood: Mood, beat: number, time: number): void {
     const step = Math.round(((beat % 4) + 4) % 4 * 4);
-    const pattern = MOODS[mood].drums;
-    for (const name of Object.keys(pattern) as DrumName[]) {
-      if (pattern[name]?.[step] !== 'x') continue;
-      const quiet = mood === 'running' && name === 'tick' ? 0.5 : mood === 'snowfall' && name === 'tick' ? 0.6 : 1;
-      this.drums.hit(name, time, quiet);
+    const info = MOODS[mood];
+    const sixteenth = 15 / Tone.getTransport().bpm.value;
+    // Real players push and pull a little, and swing lands the off-beats late.
+    const swing = step % 2 === 1 ? info.swing * sixteenth : 0;
+    const out = this.room(mood);
+    for (const name of Object.keys(info.drums) as DrumName[]) {
+      const kitPiece = info.kit[name];
+      if (info.drums[name]?.[step] !== 'x' || !kitPiece) continue;
+      const light = name === 'tick' || name === 'shaker';
+      const accent = !light ? 1 : step % 4 === 0 ? 1 : step % 2 === 0 ? 0.8 : 0.6;
+      const feel = 1 + (Math.random() - 0.5) * 0.14;
+      const late = light ? Math.random() * 0.006 : Math.random() * 0.003;
+      this.kit.hit(kitPiece.hit, kitPiece.gain * accent * feel, time + swing + late, out);
     }
+    if (this.humOn) this.bed.pulse(step, time);
   }
 
   private playNotes(tune: Tune, sound: SoundId, beat: number, time: number, secondsPerBeat: number): void {

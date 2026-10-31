@@ -3,7 +3,7 @@ import { Midi } from '@tonejs/midi';
 import JSZip from 'jszip';
 import type { Mood, NoteMode, OctaveShift, Song, Syllable, Tune } from '../src/shared/song';
 import { packSong, unpackSong, SongFileError } from '../src/shared/howlFile';
-import { MOOD_ORDER, isColourNote, isInScale, noteName, padNotes, snapToScale } from '../src/renderer/music/moods';
+import { MOODS, MOOD_ORDER, isColourNote, isInScale, noteName, padNotes, snapToScale } from '../src/renderer/music/moods';
 import { Take } from '../src/renderer/music/take';
 import { barsFor, moveSegmentStart, remapTune, resizeSegment, sameTuneAs, tidyTune, transposeTune, tuneEnd } from '../src/renderer/music/tune';
 import { songToMidi } from '../src/renderer/music/midi';
@@ -13,6 +13,9 @@ const tuneOf = (...notes: Array<[number, number, number]>): Tune => ({
   bars: 2,
   notes: notes.map(([start, duration, midi], i) => ({ syllableId: `s${i}`, segments: [{ start, duration, midi }] }))
 });
+
+import { detuneFor, pickZone } from '../src/renderer/music/zones';
+import manifest from '../src/renderer/audio/samples.json';
 
 describe('pads', () => {
   test('Wolf moon examples from the spec', () => {
@@ -252,5 +255,38 @@ describe('song file', () => {
     const newer = new JSZip();
     newer.file('song.json', JSON.stringify({ ...song, formatVersion: 2 }));
     await expect(unpackSong(await newer.generateAsync({ type: 'uint8array' }))).rejects.toBeInstanceOf(SongFileError);
+  });
+});
+
+describe('choosing a recording for a note', () => {
+  const zones = [{ midi: 48, cents: 0 }, { midi: 55, cents: 10 }, { midi: 60, cents: -5 }];
+
+  test('picks the closest recording', () => {
+    expect(pickZone(zones, 49).midi).toBe(48);
+    expect(pickZone(zones, 59).midi).toBe(60);
+    expect(pickZone(zones, 90).midi).toBe(60);
+  });
+
+  test('an equal gap picks the higher recording', () => {
+    expect(pickZone([{ midi: 50 }, { midi: 54 }], 52).midi).toBe(54);
+  });
+
+  test('corrects for how out of tune the recording is', () => {
+    expect(detuneFor(zones[1], 57)).toBe(190);
+    expect(detuneFor(zones[2], 60)).toBe(5);
+  });
+
+  test('every mood and sound has what it needs, and no pad shifts a recording too far', () => {
+    for (const mood of MOOD_ORDER) {
+      const { kit, sustain, pulse, sound } = MOODS[mood];
+      for (const piece of Object.values(kit)) expect(manifest.hits[piece.hit].length).toBeGreaterThan(0);
+      for (const bed of [sustain, pulse]) if (bed) expect(manifest.instruments[bed.instrument].length).toBeGreaterThan(0);
+      expect(sound).toBeTruthy();
+    }
+    for (const name of ['vibes', 'piano', 'strum'] as const) {
+      for (let midi = 57; midi <= 84; midi++) {
+        expect(Math.abs(pickZone(manifest.instruments[name], midi).midi - midi)).toBeLessThanOrEqual(7);
+      }
+    }
   });
 });

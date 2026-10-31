@@ -1,0 +1,472 @@
+{
+ "instruments": {
+  "vibes": [
+   {
+    "midi": 53,
+    "file": "vibes/53.ogg",
+    "cents": -8,
+    "gain": 4.626
+   },
+   {
+    "midi": 57,
+    "file": "vibes/57.ogg",
+    "cents": 0,
+    "gain": 5.128
+   },
+   {
+    "midi": 64,
+    "file": "vibes/64.ogg",
+    "cents": 0,
+    "gain": 2.352
+   },
+   {
+    "midi": 67,
+    "file": "vibes/67.ogg",
+    "cents": 0,
+    "gain": 2.935
+   },
+   {
+    "midi": 74,
+    "file": "vibes/74.ogg",
+    "cents": 0,
+    "gain": 1.495
+   },
+   {
+    "midi": 77,
+    "file": "vibes/77.ogg",
+    "cents": 0,
+    "gain": 2.027
+   },
+   {
+    "midi": 84,
+    "file": "vibes/84.ogg",
+    "cents": 0,
+    "gain": 1.177
+   }
+  ],
+  "piano": [
+   {
+    "midi": 43,
+    "file": "piano/43.ogg",
+    "cents": 3,
+    "gain": 5.06
+   },
+   {
+    "midi": 48,
+    "file": "piano/48.ogg",
+    "cents": 2,
+    "gain": 3.568
+   },
+   {
+    "midi": 55,
+    "file": "piano/55.ogg",
+    "cents": 5,
+    "gain": 2.154
+   },
+   {
+    "midi": 60,
+    "file": "piano/60.ogg",
+    "cents": 2,
+    "gain": 3.176
+   },
+   {
+    "midi": 67,
+    "file": "piano/67.ogg",
+    "cents": 3,
+    "gain": 5.911
+   },
+   {
+    "midi": 72,
+    "file": "piano/72.ogg",
+    "cents": 1,
+    "gain": 3.132
+   },
+   {
+    "midi": 79,
+    "file": "piano/79.ogg",
+    "cents": 0,
+    "gain": 3.334
+   },
+   {
+    "midi": 84,
+    "file": "piano/84.ogg",
+    "cents": -1,
+    "gain": 7.7
+   },
+   {
+    "midi": 91,
+    "file": "piano/91.ogg",
+    "cents": -2,
+    "gain": 7.314
+   }
+  ],
+  "flute": [
+   {
+    "midi": 60,
+    "file": "flute/60.ogg",
+    "cents": 1,
+    "gain": 73.027,
+    "loopStart": 1.4,
+    "loopEnd": 3.68
+   },
+   {
+    "midi": 64,
+    "file": "flute/64.ogg",
+    "cents": 1,
+    "gain": 40.089,
+    "loopStart": 1.4,
+    "loopEnd": 3.68
+   },
+   {
+    "midi": 69,
+    "file": "flute/69.ogg",
+    "cents": 0,
+    "gain": 18.736,
+    "loopStart": 1.4,
+    "loopEnd": 3.68
+   },
+   {
+    "midi": 76,
+    "file": "flute/76.ogg",
+    "cents": 0,
+    "gain": 3.716,
+    "loopStart": 1.4,
+    "loopEnd": 3.68
+   },
+   {
+    "midi": 81,
+    "file": "flute/81.ogg",
+    "cents": 0,
+    "gain": 3.47,
+    "loopStart": 1.4,
+    "loopEnd": 3.68
+   },
+   {
+    "midi": 84,
+    "file": "flute/84.ogg",
+    "cents": 0,
+    "gain": 5.202,
+    "loopStart": 1.4,
+    "loopEnd": 3.68
+   },
+   {
+    "midi": 88,
+    "file": "flute/88.ogg",
+    "cents": 0,
+    "gain": 4.261,
+    "loopStart": 1.4,
+    "loopEnd": 3.68
+   }
+  ],
+  "strum": [
+   {
+    "midi": 50,
+    "file": "strum/50.ogg",
+    "cents": 8,
+    "gain": 8.644
+   },
+   {
+    "midi": 52,
+    "file": "strum/52.ogg",
+    "cents": 6,
+    "gain": 11.619
+   },
+   {
+    "midi": 55,
+    "file": "strum/55.ogg",
+    "cents": 0,
+    "gain": 5.414
+   },
+   {
+    "midi": 59,
+    "file": "strum/59.ogg",
+    "cents": 2,
+    "gain": 13.737
+   },
+   {
+    "midi": 64,
+    "file": "strum/64.ogg",
+    "cents": 1,
+    "gain": 7.588
+   },
+   {
+    "midi": 67,
+    "file": "strum/67.ogg",
+    "cents": 4,
+    "gain": 5.009
+   },
+   {
+    "midi": 71,
+    "file": "strum/71.ogg",
+    "cents": 3,
+    "gain": 8.503
+   },
+   {
+    "midi": 76,
+    "file": "strum/76.ogg",
+    "cents": 2,
+    "gain": 5.288
+   },
+   {
+    "midi": 81,
+    "file": "strum/81.ogg",
+    "cents": 2,
+    "gain": 7.441
+   }
+  ],
+  "cello": [
+   {
+    "midi": 36,
+    "file": "cello/36.ogg",
+    "cents": 1,
+    "gain": 26.698,
+    "loopStart": 1.75,
+    "loopEnd": 4.6
+   },
+   {
+    "midi": 43,
+    "file": "cello/43.ogg",
+    "cents": -3,
+    "gain": 12.067,
+    "loopStart": 1.75,
+    "loopEnd": 4.6
+   },
+   {
+    "midi": 50,
+    "file": "cello/50.ogg",
+    "cents": -1,
+    "gain": 20.578,
+    "loopStart": 1.75,
+    "loopEnd": 4.6
+   },
+   {
+    "midi": 57,
+    "file": "cello/57.ogg",
+    "cents": 2,
+    "gain": 16.266,
+    "loopStart": 1.75,
+    "loopEnd": 4.6
+   }
+  ],
+  "violins": [
+   {
+    "midi": 62,
+    "file": "violins/62.ogg",
+    "cents": 0,
+    "gain": 53.394,
+    "loopStart": 1.75,
+    "loopEnd": 4.6
+   },
+   {
+    "midi": 72,
+    "file": "violins/72.ogg",
+    "cents": -1,
+    "gain": 18.041,
+    "loopStart": 1.75,
+    "loopEnd": 4.6
+   },
+   {
+    "midi": 79,
+    "file": "violins/79.ogg",
+    "cents": 2,
+    "gain": 45.515,
+    "loopStart": 1.75,
+    "loopEnd": 4.6
+   }
+  ],
+  "bassPluck": [
+   {
+    "midi": 28,
+    "file": "bassPluck/28.ogg",
+    "cents": -7,
+    "gain": 56.206
+   },
+   {
+    "midi": 34,
+    "file": "bassPluck/34.ogg",
+    "cents": 3,
+    "gain": 21.219
+   },
+   {
+    "midi": 42,
+    "file": "bassPluck/42.ogg",
+    "cents": 6,
+    "gain": 17.951
+   },
+   {
+    "midi": 49,
+    "file": "bassPluck/49.ogg",
+    "cents": 0,
+    "gain": 19.134
+   }
+  ],
+  "celloShort": [
+   {
+    "midi": 36,
+    "file": "celloShort/36.ogg",
+    "cents": 15,
+    "gain": 1.708
+   },
+   {
+    "midi": 43,
+    "file": "celloShort/43.ogg",
+    "cents": -1,
+    "gain": 2.995
+   },
+   {
+    "midi": 50,
+    "file": "celloShort/50.ogg",
+    "cents": 8,
+    "gain": 2.1
+   }
+  ]
+ },
+ "hits": {
+  "bigBoom": [
+   {
+    "file": "bigBoom/0.ogg",
+    "gain": 2.122
+   },
+   {
+    "file": "bigBoom/1.ogg",
+    "gain": 2.31
+   }
+  ],
+  "tightBoom": [
+   {
+    "file": "tightBoom/0.ogg",
+    "gain": 4.956
+   },
+   {
+    "file": "tightBoom/1.ogg",
+    "gain": 5.922
+   }
+  ],
+  "softBoom": [
+   {
+    "file": "softBoom/0.ogg",
+    "gain": 22.034
+   },
+   {
+    "file": "softBoom/1.ogg",
+    "gain": 16.853
+   }
+  ],
+  "cajonLow": [
+   {
+    "file": "cajonLow/0.ogg",
+    "gain": 1.786
+   },
+   {
+    "file": "cajonLow/1.ogg",
+    "gain": 1.604
+   }
+  ],
+  "cajonSlap": [
+   {
+    "file": "cajonSlap/0.ogg",
+    "gain": 0.7
+   },
+   {
+    "file": "cajonSlap/1.ogg",
+    "gain": 0.88
+   }
+  ],
+  "claps": [
+   {
+    "file": "claps/0.ogg",
+    "gain": 0.731
+   },
+   {
+    "file": "claps/1.ogg",
+    "gain": 0.742
+   },
+   {
+    "file": "claps/2.ogg",
+    "gain": 0.741
+   },
+   {
+    "file": "claps/3.ogg",
+    "gain": 0.73
+   }
+  ],
+  "snare": [
+   {
+    "file": "snare/0.ogg",
+    "gain": 4.338
+   },
+   {
+    "file": "snare/1.ogg",
+    "gain": 4.124
+   }
+  ],
+  "hat": [
+   {
+    "file": "hat/0.ogg",
+    "gain": 43.691
+   },
+   {
+    "file": "hat/1.ogg",
+    "gain": 13.517
+   }
+  ],
+  "shaker": [
+   {
+    "file": "shaker/0.ogg",
+    "gain": 20.281
+   },
+   {
+    "file": "shaker/1.ogg",
+    "gain": 8.445
+   },
+   {
+    "file": "shaker/2.ogg",
+    "gain": 20.281
+   },
+   {
+    "file": "shaker/3.ogg",
+    "gain": 10.734
+   }
+  ],
+  "tamb": [
+   {
+    "file": "tamb/0.ogg",
+    "gain": 18.664
+   },
+   {
+    "file": "tamb/1.ogg",
+    "gain": 4.628
+   }
+  ],
+  "tambShake": [
+   {
+    "file": "tambShake/0.ogg",
+    "gain": 12.034
+   },
+   {
+    "file": "tambShake/1.ogg",
+    "gain": 13.137
+   }
+  ],
+  "sleigh": [
+   {
+    "file": "sleigh/0.ogg",
+    "gain": 9.294
+   },
+   {
+    "file": "sleigh/1.ogg",
+    "gain": 9.081
+   }
+  ],
+  "woodblock": [
+   {
+    "file": "woodblock/0.ogg",
+    "gain": 5.867
+   },
+   {
+    "file": "woodblock/1.ogg",
+    "gain": 4.784
+   }
+  ]
+ }
+}

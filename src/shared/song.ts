@@ -1,6 +1,6 @@
 export type Mood = 'wolfMoon' | 'snowfall' | 'bonfire' | 'running';
 export type Feel = 'moody' | 'bright' | 'dreamy';
-export type SoundId = 'glassBells' | 'softKeys' | 'breathy';
+export type SoundId = 'glassBells' | 'softKeys' | 'breathy' | 'strum';
 export type NoteMode = 5 | 7;
 export type OctaveShift = -1 | 0 | 1;
 

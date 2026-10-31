@@ -64,5 +64,5 @@ export const MOOD_COPY: Record<Mood, { name: string; description: string }> = {
 };
 
 export const SOUND_COPY: Record<SoundId, string> = {
-  glassBells: 'Glass bells', softKeys: 'Soft keys', breathy: 'Breathy'
+  glassBells: 'Glass bells', softKeys: 'Soft keys', breathy: 'Breathy', strum: 'Strum'
 };

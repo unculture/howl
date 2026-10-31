@@ -12,3 +12,4 @@ resources/models/
 .env.*
 src/renderer/public/vendor/
 test-output/
+.sample-cache/

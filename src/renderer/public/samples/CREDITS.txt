@@ -1,0 +1,4 @@
+Instrument recordings from these libraries, both CC0 (public domain):
+VCSL, Versilian Community Sample Library: https://github.com/sgossner/VCSL
+VSCO 2 Community Edition, Versilian Studios: https://github.com/sgossner/VSCO-2-CE
+Processed by scripts/make-samples.mjs.

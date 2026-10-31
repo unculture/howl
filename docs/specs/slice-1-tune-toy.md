@@ -121,7 +121,7 @@ Rules:
 | --- | --- | --- | --- | --- | --- |
 | Wolf moon | moody | D | 84 | Glass bells | Big: Boom on 1 and 3, Clap on 2 and 4, Tick 8ths |
 | Snowfall | dreamy | E | 72 | Soft keys | Sparse: Boom on 1, soft Tick quarters, Shaker on the "and" of 4 |
-| Bonfire | bright | G | 92 | Soft keys | Boom 1 and 3, Clap 4, Shaker 8ths |
+| Bonfire | bright | G | 92 | Strum | Boom 1 and 3, Clap 4, Shaker 8ths |
 | Running | bright | C | 120 | Breathy | Boom every beat, Clap 2 and 4, Tick 16ths (quiet) |
 
 Drum patterns as 16-step strings (`x` = hit, `.` = rest, one bar of 4/4):
@@ -159,9 +159,12 @@ All synthesised with Tone.js so nothing needs downloading. Monophonic with 40ms 
 
 | Id | Label | Recipe (starting point, tune by ear) |
 | --- | --- | --- |
-| `glassBells` | Glass bells | `FMSynth` harmonicity 3.01, modulationIndex 14, envelope a 0.005 d 1.2 s 0.0 r 1.2; reverb wet 0.35 |
-| `softKeys` | Soft keys | `Synth` triangle, a 0.01 d 0.6 s 0.35 r 0.8, low-pass 2.4 kHz; reverb wet 0.25 |
-| `breathy` | Breathy | `Synth` sawtooth through low-pass 1.4 kHz Q 1 + quiet `NoiseSynth` pink layer, a 0.06 d 0.3 s 0.7 r 0.6; chorus; reverb wet 0.3 |
+| `glassBells` | Glass bells | Vibraphone, soft mallets; rings on 0.9 s after release; reverb wet 0.3 |
+| `softKeys` | Soft keys | Upright piano, soft dynamic, low-pass 3.8 kHz; damper 0.4 s; reverb wet 0.22 |
+| `breathy` | Breathy | Flute, no vibrato, looped so it holds; 0.16 s release; reverb wet 0.28 |
+| `strum` | Strum | Strumstick, fingered; rings on 0.7 s; reverb wet 0.14 |
+
+All sounds, drums and backing are real recordings from CC0 libraries, built by `scripts/make-samples.mjs`. Each mood has its own kit, room and bed, set in `src/renderer/music/moods.ts`: Wolf moon has bass drum, claps, tambourine and held cello; Snowfall has frame drum, sleigh bells and held violins; Bonfire has cajon, shaker and plucked bass, with swing; Running has a tight bass drum, snare, hi-hat and pulsing cello. Beds only play the root and fifth, so they never write a melody.
 
 Held notes sustain while held (for `glassBells`, which has no sustain, retrigger nothing — the decay is the character).
 
@@ -541,6 +544,7 @@ tune.sound                   Play it as: {sound}
 sound.glassBells             Glass bells
 sound.softKeys               Soft keys
 sound.breathy                Breathy
+sound.strum                  Strum
 tune.start                   ▶ Start
 tune.start.caption           Then tap a pad for each bit
 tune.hint.ready              Tap Start, then a pad for each bit

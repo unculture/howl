@@ -4,6 +4,12 @@ Small design or implementation decisions made while building, for the designer t
 
 | Date | Decision | Why | Status |
 | --- | --- | --- | --- |
+| 2026-10-31 | All sounds are now real instrument recordings, not synths. The spec's sound table is rewritten to match | Tester feedback: the moods sounded too similar and too chiptune. VCSL and VSCO 2 are CC0, so they are safe in a public repo, and they add under 3 MB | For review |
+| 2026-10-31 | Each mood has its own kit, room and bed. The background hum setting now controls the whole bed, and it is louder than the spec's -24 dB | Same feedback. Beds are only root and fifth, so nothing writes a melody for her | For review |
+| 2026-10-31 | New sound "Strum", and it is now Bonfire's default | The spec first wanted Bonfire to be "warm guitar". No CC0 guitar was found, and strumstick is the closest. New string added to the deck | For review |
+| 2026-10-31 | Mood card previews each have their own short phrase | Previews all played the same four-note shape, which made the moods sound alike. They are only ever used on the card, never in her songs | For review |
+| 2026-10-31 | Pitch moves by playback rate, and a gentle saturator with no look-ahead replaces a limiter | Tone's wrapped context has no detune on buffer sources. A limiter would delay pads by about 6 ms | For review |
+| 2026-10-31 | CI upgrades over the published build while it is running, and checks old files are gone, one copy is listed and her songs are kept | Tester asked that installing removes the previous version | For review |
 | 2026-10-31 | The installed app gets 10 plain launches to Home in CI, not the full flow. The full flow runs on the unpacked build | Playwright's launch hung 5 times in 5 against the installed app, cause not found. Plain launches show what she would see | For review |
 | 2026-10-31 | The launch check retries Playwright's Electron launch, up to 5 tries of 30 seconds | On Windows, Playwright's launch hung 2 times in 8 while plain launches of the same build hung 0 times in 30, so it is a harness race. The check still reopens the app with a plain launch and no retries | For review |
 | 2026-10-31 | Has tune · playing shows a Stop button where Hear it sits when stopped, using the deck's `tune.stop` | The spec's row has no Stop for this state and the loop runs "until Stop", so on touch she could only stop it by leaving the line | For review |

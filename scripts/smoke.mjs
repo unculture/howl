@@ -411,6 +411,9 @@ try {
   await page.locator(t('undo')).click();
   check((await padNames()).startsWith('A3 C4 D4 F4'), 'undo brings the old mood back');
 
+  const samples = await page.evaluate(() => window.__howlProbe().samples);
+  check(samples.loaded && samples.failed === 0 && samples.count > 50, `instrument recordings all loaded (${samples.count})`);
+
   // ---- Saved, and still there after quitting ----
   await app.close();
   const files = readdirSync(songsDir);

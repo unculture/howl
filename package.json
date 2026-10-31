@@ -1,7 +1,7 @@
 {
   "name": "howl",
   "productName": "howl",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "A songwriting app for a young writer who starts from words.",
   "author": "James Browne",
@@ -52,7 +52,8 @@
       "oneClick": true,
       "perMachine": false,
       "artifactName": "howl-setup.exe",
-      "shortcutName": "howl"
+      "shortcutName": "howl",
+      "deleteAppDataOnUninstall": false
     },
     "mac": {
       "target": [

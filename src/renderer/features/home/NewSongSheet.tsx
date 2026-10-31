@@ -5,7 +5,7 @@ import { MOOD_COPY, copy } from '../../app/copy';
 import { enterSong, makeSong } from '../../app/session';
 import { Sheet } from '../../app/ui';
 import { engine } from '../../audio/engine';
-import { MOOD_ORDER, padNotes } from '../../music/moods';
+import { MOOD_ORDER } from '../../music/moods';
 import { readAloud } from '../../speech/readAloud';
 import { startDictation, stopDictation, useDictation } from '../../speech/dictation';
 import { saveSongNow } from '../../store/autosave';
@@ -44,9 +44,8 @@ export function NewSongSheet({ onClose }: { onClose: () => void }) {
       setPreviewing(null);
       return;
     }
-    const pads = padNotes(next, 5, 0);
     engine.onEnded = () => setPreviewing(null);
-    engine.previewMood(next, [pads[2], pads[4], pads[3], pads[5]]);
+    engine.previewMood(next);
     setPreviewing(next);
     window.setTimeout(() => setPreviewing((current) => (current === next ? null : current)), 4000);
   };

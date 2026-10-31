@@ -15,6 +15,8 @@ Slice 1 of howl. She says or types her lines, fixes the bits, taps a tune for ea
 - Moods, speed, sounds, 5 and 7 notes, octave arrows, Settings, the keyboard map
 - Autosave to `.howl` files in Documents, undo and redo
 - No network at runtime
+- Real instrument recordings: vibraphone, upright piano, flute and strumstick, with a different kit and backing for each mood
+- Installing over an earlier version replaces it and keeps her songs
 
 ## Not yet checked by a person
 
