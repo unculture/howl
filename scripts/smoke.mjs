@@ -14,7 +14,19 @@ mkdirSync('test-output', { recursive: true });
 const env = { ...process.env, HOWL_SONGS_DIR: songsDir };
 // Skips the macOS permission prompt. The mic itself is replaced in the page below.
 const micArgs = ['--use-fake-device-for-media-stream'];
-const launch = () => electron.launch(exe ? { executablePath: exe, env, args: micArgs } : { args: ['.', ...micArgs], env });
+// Playwright's Electron launch hangs about 1 time in 4 on Windows. Plain launches of the same build
+// hung 0 times in 30 (scripts/launch-soak.mjs), so this retries the harness and nothing else.
+const launch = async () => {
+  const options = exe ? { executablePath: exe, env, args: micArgs } : { args: ['.', ...micArgs], env };
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await electron.launch({ ...options, timeout: 30000 });
+    } catch (err) {
+      if (attempt === 5) throw err;
+      console.log(`test harness launch attempt ${attempt} hung, retrying`);
+    }
+  }
+};
 // A recording of three spoken lines becomes the mic, so the real VAD and Whisper pipeline runs on this machine.
 const useRecordingAsMic = (target) =>
   target.evaluate(async (base64) => {
