@@ -2,7 +2,8 @@ import type { Line, Mood, Song } from '../../shared/song';
 import { MOODS } from '../music/moods';
 import { textToSyllables } from '../speech/syllables';
 import { stopReading } from '../speech/readAloud';
-import { openSong, useSong } from '../store/song';
+import { flushSave } from '../store/autosave';
+import { openSong } from '../store/song';
 import { useUi } from '../store/ui';
 import { stopAll } from '../features/tune/controller';
 import { copy } from './copy';
@@ -35,6 +36,8 @@ export function enterSong(song: Song): void {
 export function closeSongAndGoHome(): void {
   stopAll();
   stopReading();
-  useUi.setState({ screen: 'home' });
-  useSong.setState({ past: [], future: [] });
+  void flushSave().finally(() => {
+    useUi.setState({ screen: 'home' });
+    openSong(null);
+  });
 }

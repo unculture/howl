@@ -37,12 +37,6 @@
         ]
       }
     ],
-    "fileAssociations": [
-      {
-        "ext": "howl",
-        "name": "howl song"
-      }
-    ],
     "win": {
       "target": [
         {

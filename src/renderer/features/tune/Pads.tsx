@@ -10,7 +10,7 @@ const padIndexAt = (x: number, y: number): number | null => {
   return el ? Number(el.dataset.pad) : null;
 };
 
-export const padLatencies: number[] = [];
+export const padTimings: Array<{ queued: number; handler: number }> = [];
 
 export function setOctave(delta: -1 | 1): void {
   commit('Change octave', (song) => {
@@ -60,9 +60,10 @@ export function Pads({ keyPress }: { keyPress: React.RefObject<PadKeyHandle | nu
       const index = (event.target as HTMLElement).closest<HTMLElement>('[data-pad]');
       if (!index) return;
       event.preventDefault();
+      const began = performance.now();
       press(`p${event.pointerId}`, Number(index.dataset.pad));
-      padLatencies.push(performance.now() - event.timeStamp);
-      if (padLatencies.length > 50) padLatencies.shift();
+      padTimings.push({ queued: began - event.timeStamp, handler: performance.now() - began });
+      if (padTimings.length > 200) padTimings.shift();
       try {
         el.setPointerCapture(event.pointerId);
       } catch {

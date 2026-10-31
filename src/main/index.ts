@@ -1,10 +1,12 @@
-import { app, BrowserWindow, ipcMain, net, protocol, screen, session } from 'electron';
+import { app, BrowserWindow, ipcMain, net, protocol, screen, session, shell, systemPreferences } from 'electron';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { extname, join, normalize, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { registerFileHandlers, watchSongs } from './files';
 
 const APP_ORIGIN = 'howl://app';
 const devUrl = process.env['ELECTRON_RENDERER_URL'];
+let quitting = false;
 
 app.setName('howl');
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
@@ -106,18 +108,51 @@ function createWindow(): void {
   win.setMenuBarVisibility(false);
   win.webContents.setVisualZoomLevelLimits(1, 1);
   win.once('ready-to-show', () => win.show());
-  win.on('close', () => {
+  // Let the renderer save first. If it doesn't answer quickly, close anyway.
+  let flushed = false;
+  win.on('close', (event) => {
+    if (flushed) return;
+    event.preventDefault();
     try {
       writeFileSync(boundsFile(), JSON.stringify(win.getNormalBounds()));
     } catch {
       // Remembering the window size is a nicety; never block quitting on it.
     }
+    const finish = () => {
+      if (flushed) return;
+      flushed = true;
+      if (!win.isDestroyed()) win.close();
+      if (quitting) app.quit();
+    };
+    ipcMain.once('app:flushed', finish);
+    setTimeout(finish, 3000);
+    win.webContents.send('app:flush');
   });
+  watchSongs(win);
   void win.loadURL(devUrl ?? `${APP_ORIGIN}/index.html`);
 }
 
 ipcMain.on('system:version', (event) => {
   event.returnValue = app.getVersion();
+});
+ipcMain.handle('system:micStatus', () =>
+  process.platform === 'win32' || process.platform === 'darwin' ? systemPreferences.getMediaAccessStatus('microphone') : 'granted'
+);
+ipcMain.handle('system:askMic', async () =>
+  process.platform === 'darwin' ? systemPreferences.askForMediaAccess('microphone') : true
+);
+ipcMain.handle('system:openMicSettings', () =>
+  shell.openExternal(
+    process.platform === 'darwin'
+      ? 'x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone'
+      : 'ms-settings:privacy-microphone'
+  )
+);
+registerFileHandlers();
+
+// Closing the window waits for a save, which cancels a quit in progress. Remember it was asked for.
+app.on('before-quit', () => {
+  quitting = true;
 });
 
 void app.whenReady().then(() => {

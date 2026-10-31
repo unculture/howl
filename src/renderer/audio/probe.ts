@@ -1,9 +1,10 @@
 import * as Tone from 'tone';
-import { padLatencies } from '../features/tune/Pads';
+import { padTimings } from '../features/tune/Pads';
+import { engine } from './engine';
 
 declare global {
   interface Window {
-    __howlProbe: () => { state: string; base: number; output: number; peak: number; padMs: number };
+    __howlProbe: () => { state: string; base: number; output: number; peak: number; queuedMs: number[]; handlerMs: number[] };
   }
 }
 
@@ -19,13 +20,13 @@ export function installProbe(): void {
     }
     const data = new Float32Array(analyser.fftSize);
     analyser.getFloatTimeDomainData(data);
-    const padMs = padLatencies.length ? Math.max(...padLatencies) : 0;
     return {
       state: raw.state,
       base: raw.baseLatency,
-      output: raw.outputLatency,
+      output: engine.outputLatency(),
       peak: data.reduce((max, v) => Math.max(max, Math.abs(v)), 0),
-      padMs
+      queuedMs: padTimings.map((t) => t.queued),
+      handlerMs: padTimings.map((t) => t.handler)
     };
   };
 }

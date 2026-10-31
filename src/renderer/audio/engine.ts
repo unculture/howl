@@ -269,10 +269,10 @@ class AudioEngine {
     return heard;
   }
 
-  private outputLatency(): number {
-    return Tone.getContext().rawContext instanceof AudioContext
-      ? (Tone.getContext().rawContext as AudioContext).outputLatency || 0
-      : 0;
+  /** Tone wraps the AudioContext and its wrapper hides outputLatency, so read it from the native one. */
+  outputLatency(): number {
+    const raw = Tone.getContext().rawContext as unknown as { _nativeContext?: AudioContext; baseLatency?: number };
+    return raw._nativeContext?.outputLatency || 0;
   }
 
   get isRunning(): boolean {

@@ -4,6 +4,11 @@ Small design or implementation decisions made while building, for the designer t
 
 | Date | Decision | Why | Status |
 | --- | --- | --- | --- |
+| 2026-10-31 | "1 line" and "1 bit to sing" are singular, beyond the deck's "{n} lines" and "{n} bits to sing" | "1 lines" reads as a mistake, which costs a dyslexic reader extra | For review |
+| 2026-10-31 | Tapping outside an edit field saves the text; only Escape cancels | Spec covers Enter and Escape but not blur; losing typed words would be worse | For review |
+| 2026-10-31 | Text size labels are small / medium / large / largest without "Aa", and aren't in the copy deck | Spec lists "Aa small / medium / large / largest" in §6.6 only; "Aa" adds nothing when read aloud | For review |
+| 2026-10-31 | Settings uses a native select for the reading voice | Spec asks for a menu; native handles long voice lists, keyboard and touch without new UI | For review |
+| 2026-10-31 | Importing a song whose id is already in the folder keeps both, with a new id for the copy | Spec's name-clash rule doesn't cover the same song arriving twice; overwriting could lose work | For review |
 | 2026-10-31 | Pads start sound at the audio clock's current time (`Tone.immediate()`), not `Tone.now()`. Context `lookAhead` is 0.05 rather than the spec's 0.01 | `Tone.now()` adds the look-ahead to every press. With pads bypassing it, the beat can keep a safe look-ahead (0.01 with a 0.02 update interval would make drums jitter) and pads still get zero added delay | For review |
 | 2026-10-31 | Reverb is `Tone.Reverb` shared per sound; Chromium's autoplay policy is switched off | Sharing saves CPU on her laptop, and the first tap should never be silent | For review |
 | 2026-10-31 | A tap up to a quarter beat before the downbeat counts as on it | Children anticipate the first beat; losing that tap feels broken. Other count-in taps sound but don't record | For review |

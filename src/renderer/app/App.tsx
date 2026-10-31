@@ -2,7 +2,12 @@ import { useEffect } from 'react';
 import { redo, undo, useSong } from '../store/song';
 import { hideToast, useUi } from '../store/ui';
 import { StudioShell } from './StudioShell';
-import { enterSong, makeLine, makeSong } from './session';
+import { Sheet } from './ui';
+import { HomeScreen } from '../features/home/HomeScreen';
+import { SettingsSheet } from '../features/settings/SettingsSheet';
+import { preloadDictation } from '../speech/dictation';
+import { startAutosave, useSaveError } from '../store/autosave';
+import { useSettings } from '../store/settings';
 import { playSong, stopAll, useTune } from '../features/tune/controller';
 import { stopReading } from '../speech/readAloud';
 import { copy } from './copy';
@@ -68,19 +73,37 @@ function useGlobalKeys() {
   }, []);
 }
 
+function SaveFailed() {
+  const error = useSaveError((s) => s.error);
+  if (!error) return null;
+  return (
+    <Sheet title={copy.save.retrying} onClose={() => useSaveError.setState({ error: null })}>
+      <p className="t-caption text-secondary">{error}</p>
+      <div className="sheet-actions">
+        <button className="btn btn-outline" onClick={() => void window.howl.files.showFolder()}>{copy.settings.showFolder}</button>
+      </div>
+    </Sheet>
+  );
+}
+
 export function App() {
   useGlobalKeys();
-  useEffect(() => {
-    if (useSong.getState().song) return;
-    const song = makeSong('moon pocket', 'wolfMoon');
-    song.lines = [makeLine('the pine trees whisper my name'), makeLine('and the river runs cold under me')];
-    enterSong(song);
-    useUi.setState({ tab: 'tune' });
-  }, []);
   const screen = useUi((s) => s.screen);
+  const hasSong = useSong((s) => s.song !== null);
+  const settingsOpen = useUi((s) => s.settingsOpen);
+  const textScale = useSettings((s) => s.textScale);
+  useEffect(() => {
+    document.documentElement.style.setProperty('--lyric-scale', String(textScale));
+  }, [textScale]);
+  useEffect(() => {
+    startAutosave();
+    preloadDictation();
+  }, []);
   return (
     <>
-      {screen === 'song' ? <StudioShell /> : <p className="t-title">{copy.home.empty}</p>}
+      {screen === 'song' && hasSong ? <StudioShell /> : <HomeScreen />}
+      {settingsOpen && <SettingsSheet />}
+      <SaveFailed />
       <Toast />
     </>
   );
