@@ -14,15 +14,16 @@ mkdirSync('test-output', { recursive: true });
 const env = { ...process.env, HOWL_SONGS_DIR: songsDir };
 // Skips the macOS permission prompt. The mic itself is replaced in the page below.
 const micArgs = ['--use-fake-device-for-media-stream'];
-// Playwright's Electron launch hangs about 1 time in 4 on Windows. Plain launches of the same build
-// hung 0 times in 30 (scripts/launch-soak.mjs), so this retries the harness and nothing else.
+// Playwright's Electron launch often never returns on Windows (8 of 10 in one run), even though the app has
+// fully loaded behind it. Plain launches hung 0 of 40 (scripts/launch-soak.mjs). A good launch takes about
+// a second, so this makes many short attempts. The reopen step below uses a plain launch with no retries.
 const launch = async () => {
   const options = exe ? { executablePath: exe, env, args: micArgs } : { args: ['.', ...micArgs], env };
   for (let attempt = 1; ; attempt++) {
     try {
-      return await electron.launch({ ...options, timeout: 30000 });
+      return await electron.launch({ ...options, timeout: 12000 });
     } catch (err) {
-      if (attempt === 5) throw err;
+      if (attempt === 30) throw err;
       console.log(`test harness launch attempt ${attempt} hung, retrying`);
     }
   }
