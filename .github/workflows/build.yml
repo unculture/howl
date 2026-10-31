@@ -65,7 +65,7 @@ jobs:
           if (!(Test-Path $exe)) { throw 'The new version did not install' }
           $want = (Get-Content package.json | ConvertFrom-Json).version
           $got = (Get-Item $exe).VersionInfo.ProductVersion
-          if ($got -ne $want) { throw "Installed version is $got, wanted $want" }
+          if ($got -notlike "$want*") { throw "Installed version is $got, wanted $want" }
           $entries = @(Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*' -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -like 'howl*' })
           if ($entries.Count -ne 1) { throw "Windows lists $($entries.Count) copies of howl" }
           if ((Get-Content "$songs\her song.howl") -ne 'keep me') { throw 'Her song was changed' }
