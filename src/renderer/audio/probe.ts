@@ -5,7 +5,7 @@ import { useDictation } from '../speech/dictation';
 
 declare global {
   interface Window {
-    __howlProbe: () => { state: string; base: number; output: number; peak: number; queuedMs: number[]; handlerMs: number[]; lastTranscribeMs: number };
+    __howlProbe: () => { state: string; base: number; output: number; peak: number; queuedMs: number[]; handlerMs: number[]; lastTranscribeMs: number; position: number; now: number; running: boolean };
   }
 }
 
@@ -28,7 +28,10 @@ export function installProbe(): void {
       peak: data.reduce((max, v) => Math.max(max, Math.abs(v)), 0),
       queuedMs: padTimings.map((t) => t.queued),
       handlerMs: padTimings.map((t) => t.handler),
-      lastTranscribeMs: useDictation.getState().lastMs
+      lastTranscribeMs: useDictation.getState().lastMs,
+      position: engine.position(),
+      now: raw.currentTime,
+      running: engine.isRunning
     };
   };
 }

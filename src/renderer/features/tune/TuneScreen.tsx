@@ -24,6 +24,7 @@ export function TuneScreen() {
   const takeNotes = useTune((s) => s.takeNotes);
   const liveBars = useTune((s) => s.bars);
   const sungIndex = useTune((s) => s.sungIndex);
+  const flashedBit = useTune((s) => s.flashBit);
   const songPlaying = useTune((s) => s.songPlaying);
   const keyHandle = useRef<PadKeyHandle | null>(null);
 
@@ -147,7 +148,7 @@ export function TuneScreen() {
             const joinsNext = next?.wordIndex === bit.wordIndex;
             const sung = playing ? (sungIndex >= i) : glowIndex === -1 || i < glowIndex;
             const cls = i === glowIndex && !playing ? 'bit-glow'
-              : playing && sungIndex === i ? 'bit-now'
+              : (playing && sungIndex === i) || flashedBit === bit.id ? 'bit-now'
               : sung ? 'bit-sung' : 'bit-todo';
             return (
               <span key={bit.id} className={joinsNext ? 'bit-wrap' : 'bit-wrap bit-word-end'}>
@@ -160,7 +161,7 @@ export function TuneScreen() {
         <span className="t-body text-secondary lyric-hint">{hint}</span>
       </div>
 
-      <Roll line={line} notes={notes} bars={bars} />
+      <Roll line={line} notes={notes} bars={bars} needsFinishing={needsFinishing} />
       <Pads keyPress={keyHandle} />
 
       <div className="tune-actions">

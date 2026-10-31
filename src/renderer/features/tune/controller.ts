@@ -130,6 +130,7 @@ function beginTake(line: Line, kept: Note[], bars: number, startBeat: number): v
   if (!s) return;
   take = new Take(line.syllables, kept);
   takeLineId = line.id;
+  tidied.delete(line.id);
   holder = null;
   takeStartBeat = startBeat;
   takeBarCap = Math.max(MAX_BARS, Math.ceil(startBeat / 8) * 2 + 4);
@@ -305,4 +306,25 @@ export function playSong(target?: Song): void {
 export function goToLine(lineId: string): void {
   stopAll();
   useUi.setState({ tuneLineId: lineId, selectedLineId: lineId });
+}
+
+// ---- Editing helpers ----
+
+const tidied = new Set<string>();
+
+export function markTidied(lineId: string): void {
+  tidied.add(lineId);
+}
+
+/** Blocks snap to 1/16 beat, or 1/8 once Tidy timing has been used since the last take. */
+export function editGrid(lineId: string): number {
+  return tidied.has(lineId) ? 0.125 : 0.0625;
+}
+
+let flashTimer: number | undefined;
+
+export function flashBit(bitId: string): void {
+  window.clearTimeout(flashTimer);
+  useTune.setState({ flashBit: bitId });
+  flashTimer = window.setTimeout(() => useTune.setState({ flashBit: null }), 400);
 }

@@ -169,6 +169,7 @@ class AudioEngine {
   private plan: Plan = { kind: 'none' };
   private padSound: SoundId = 'glassBells';
   private holding = false;
+  private startedAt = 0;
   humOn = true;
   onEnded: (() => void) | undefined;
 
@@ -220,6 +221,13 @@ class AudioEngine {
     this.playbackVoice(sound);
   }
 
+  /** Change the instrument, including for a line that is already looping. */
+  setSound(sound: SoundId): void {
+    this.prepareSound(sound);
+    if (this.plan.kind === 'loop' || this.plan.kind === 'once') this.plan = { ...this.plan, sound };
+    if (this.plan.kind === 'song') this.plan = { ...this.plan, song: { ...this.plan.song, sound } };
+  }
+
   // ---- Pads. These never touch the Transport: sound starts at the audio clock's current time. ----
 
   attack(midi: number): void {
@@ -254,6 +262,8 @@ class AudioEngine {
     const transport = Tone.getTransport();
     if (transport.state !== 'started') return 0;
     const now = Tone.immediate() - this.outputLatency();
+    // Before this run's start, the Transport still answers with the previous run's position.
+    if (now < this.startedAt) return 0;
     return transport.getTicksAtTime(now) / PPQ;
   }
 
@@ -292,7 +302,8 @@ class AudioEngine {
     this.drone.setMood(mood);
     if (this.humOn) this.drone.fadeIn(droneSeconds);
     void this.resume();
-    transport.start(Tone.now() + 0.06);
+    this.startedAt = Tone.now() + 0.06;
+    transport.start(this.startedAt);
   }
 
   /** One bar of clicks, then drums from the downbeat. A take's beat 0 is the downbeat after the count-in. */

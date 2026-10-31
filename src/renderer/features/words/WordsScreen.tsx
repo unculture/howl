@@ -48,6 +48,17 @@ function SayItAll({ onType, onDone }: { onType: () => void; onDone: (firstNew: s
   const lines = useSong((s) => s.song!.lines);
   const toggle = useListening(onDone);
   const words = statusCopy(status);
+  const latest = useRef({ status, toggle });
+  latest.current = { status, toggle };
+  useEffect(() => {
+    const key = (event: KeyboardEvent) => {
+      if ((event.target as HTMLElement).closest('input, textarea, .sheet')) return;
+      const isListening = latest.current.status === 'listening';
+      if (event.code === 'KeyM' || (event.key === 'Escape' && isListening)) void latest.current.toggle();
+    };
+    window.addEventListener('keydown', key);
+    return () => window.removeEventListener('keydown', key);
+  }, []);
   const paste = async () => {
     const text = await navigator.clipboard.readText().catch(() => '');
     const parts = splitPasted(text);
@@ -106,7 +117,9 @@ function YourLines({ startNew, onDraftClosed }: { startNew: boolean; onDraftClos
       if (target.closest('input, textarea, .sheet, [role="menu"]') || k.editingId || k.drafting) return;
       if (event.metaKey || event.ctrlKey) return;
       const at = k.selectedIndex;
-      if (event.code === 'KeyM') {
+      if (event.key === 'Escape' && useDictation.getState().status === 'listening') {
+        void k.toggleListening();
+      } else if (event.code === 'KeyM') {
         void k.toggleListening();
       } else if (event.code === 'Enter' && at >= 0) {
         event.preventDefault();

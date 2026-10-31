@@ -34,6 +34,7 @@ function useGlobalKeys() {
       const mod = event.metaKey || event.ctrlKey;
       if (mod && event.code === 'KeyZ' && !typing) {
         event.preventDefault();
+        stopAll();
         if (event.shiftKey) redo();
         else undo();
       } else if (mod && event.code === 'Comma') {
@@ -42,6 +43,9 @@ function useGlobalKeys() {
       } else if (event.key === 'Escape' && !typing) {
         stopReading();
         if (useTune.getState().songPlaying) stopAll();
+      } else if (event.code === 'Space' && !event.shiftKey && !typing && useTune.getState().songPlaying) {
+        event.preventDefault();
+        stopAll();
       } else if (inSong && !typing && !mod) {
         if (event.shiftKey && event.code === 'Space') {
           event.preventDefault();

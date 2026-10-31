@@ -4,6 +4,7 @@ Small design or implementation decisions made while building, for the designer t
 
 | Date | Decision | Why | Status |
 | --- | --- | --- | --- |
+| 2026-10-31 | The launch check reopens the app as a plain launch, driven from outside over the DevTools protocol | The in-app test harness hung on a second launch on Windows, which can't tell a harness problem from a hang she would see | For review |
 | 2026-10-31 | Dictation runs on WASM only for now, not WebGPU | Spec says WebGPU when available. Whisper's q8 models are poorly supported on WebGPU and a GPU driver crash is the bigger risk for a first test. WASM met the 3 second target in testing. Revisit with fp32 models | For review |
 | 2026-10-31 | Whisper uses at most half the CPU cores (max 4) | Leaves room for the beat and pads while a line is being written down | For review |
 | 2026-10-31 | Known mishearings ("Thank you.", "you", etc.) are dropped whenever the whole utterance matches, at any length, and short utterances are otherwise kept | The spec's "< 1.0 s or the text is one of" read literally would drop any short real line such as "the moon" | For review |

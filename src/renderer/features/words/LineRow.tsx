@@ -190,6 +190,8 @@ export function LineRow(props: {
   const reading = useReading((s) => s.readingId === line.id);
   const wordIndex = useReading((s) => s.wordIndex);
   const playing = useTune((s) => s.songLineId === line.id);
+  const sungIndex = useTune((s) => s.sungIndex);
+  const karaokeWord = line.syllables[sungIndex]?.wordIndex ?? -1;
   const rowRef = useRef<HTMLDivElement>(null);
   const [swipe, setSwipe] = useState(0);
   const [isOpen, setOpen] = useState(false);
@@ -305,7 +307,7 @@ export function LineRow(props: {
       >
         <div className="line-main">
           <SpeakerButton text={line.text} id={line.id} />
-          <LyricText line={line} reading={reading} wordIndex={wordIndex} />
+          <LyricText line={line} reading={reading || playing} wordIndex={reading ? wordIndex : karaokeWord} />
           {selected ? (
             <button className="btn btn-outline" data-testid="edit" onClick={(event) => { event.stopPropagation(); onEdit(); }}>{copy.lines.edit}</button>
           ) : state !== 'none' ? (

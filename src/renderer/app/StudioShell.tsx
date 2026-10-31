@@ -8,6 +8,7 @@ import { playSong, stopAll, useTune } from '../features/tune/controller';
 import { TuneScreen } from '../features/tune/TuneScreen';
 import { WordsScreen } from '../features/words/WordsScreen';
 import { closeSongAndGoHome } from './session';
+import { stopDictation } from '../speech/dictation';
 
 function SongName() {
   const name = useSong((s) => s.song!.name);
@@ -78,7 +79,13 @@ export function StudioShell() {
   const anyTune = useSong((s) => s.song!.lines.some((line) => (line.tune?.notes.length ?? 0) > 0));
   const songPlaying = useTune((s) => s.songPlaying);
 
-  useEffect(() => stopAll, [tab]);
+  useEffect(
+    () => () => {
+      stopAll();
+      void stopDictation();
+    },
+    [tab]
+  );
 
   const setTab = (next: Tab) => useUi.setState({ tab: next });
   const toggleSong = () => {
