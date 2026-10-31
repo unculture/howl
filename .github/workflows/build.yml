@@ -42,6 +42,13 @@ jobs:
       - name: Launch the packaged app
         run: npm run test:smoke -- release/win-unpacked/howl.exe
 
+      - name: Install with the real installer and launch the installed app
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force "$env:APPDATA\howl" -ErrorAction SilentlyContinue
+          Start-Process -FilePath release\howl-setup.exe -ArgumentList '/S' -Wait
+          npm run test:smoke -- "$env:LOCALAPPDATA\Programs\howl\howl.exe"
+
       - name: Upload smoke test screenshots
         if: always()
         uses: actions/upload-artifact@v4

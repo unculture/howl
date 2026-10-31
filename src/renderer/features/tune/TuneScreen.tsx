@@ -180,6 +180,7 @@ export function TuneScreen() {
         {hasTune && (
           <>
             {mode === 'idle' && !songPlaying && <button className="btn btn-secondary" data-testid="hear" onClick={hearIt}>{copy.tune.hearIt}</button>}
+            {playing && <button className="btn btn-secondary" data-testid="stop" onClick={stopAll}>{copy.tune.stop}</button>}
             <button className="btn btn-outline" data-testid="again" onClick={again}>{copy.tune.again}</button>
             <TuneActionsExtra />
           </>

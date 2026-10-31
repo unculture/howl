@@ -293,6 +293,12 @@ try {
   await page.keyboard.press('Escape');
   await sleep(100);
 
+  // On touch there is no Space bar, so a looping line needs a Stop she can tap.
+  await page.click(t('hear'));
+  await page.click(t('stop'));
+  await page.waitForSelector(t('hear'), { timeout: 2000 });
+  check((await page.locator(t('stop')).count()) === 0, 'Stop button stops playback and gives Hear it back');
+
   // ---- Notes, octave, menus ----
   const padNames = () => page.locator('[data-pad]').evaluateAll((els) => els.map((el) => el.getAttribute('aria-label')).join(' '));
   check((await padNames()) === 'A3 C4 D4 F4 G4 A4 C5 D5 F5 G5', 'Wolf moon 5-note pads');
