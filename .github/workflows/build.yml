@@ -47,7 +47,7 @@ jobs:
         run: |
           Remove-Item -Recurse -Force "$env:APPDATA\howl" -ErrorAction SilentlyContinue
           Start-Process -FilePath release\howl-setup.exe -ArgumentList '/S' -Wait
-          npm run test:smoke -- "$env:LOCALAPPDATA\Programs\howl\howl.exe"
+          node scripts/launch-soak.mjs "$env:LOCALAPPDATA\Programs\howl\howl.exe" 10 0
 
       - name: Upload smoke test screenshots
         if: always()
