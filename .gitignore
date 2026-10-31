@@ -10,3 +10,5 @@ Thumbs.db
 resources/models/
 .env
 .env.*
+src/renderer/public/vendor/
+test-output/

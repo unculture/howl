@@ -1,0 +1,105 @@
+{
+  "name": "howl",
+  "productName": "howl",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A songwriting app for a young writer who starts from words.",
+  "author": "James Browne",
+  "main": "out/main/index.js",
+  "scripts": {
+    "assets": "node scripts/copy-runtime-assets.mjs",
+    "dev": "npm run assets && electron-vite dev",
+    "build": "npm run assets && electron-vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:smoke": "node scripts/smoke.mjs",
+    "models:fetch": "node scripts/fetch-models.mjs",
+    "build:win": "npm run build && electron-builder --win --x64 --publish never",
+    "build:mac": "npm run build && electron-builder --mac --publish never"
+  },
+  "build": {
+    "appId": "app.howl.tunetoy",
+    "productName": "howl",
+    "directories": {
+      "output": "release",
+      "buildResources": "resources/icons"
+    },
+    "files": [
+      "out/**",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/models",
+        "to": "models",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "fileAssociations": [
+      {
+        "ext": "howl",
+        "name": "howl song"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "resources/icons/icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "artifactName": "howl-setup.exe",
+      "shortcutName": "howl"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "resources/icons/icon.png",
+      "identity": null,
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "howl listens when you say your song."
+      }
+    }
+  },
+  "devDependencies": {
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource-variable/lexend": "^5.3.0",
+    "@huggingface/transformers": "^3.8.1",
+    "@ricky0123/vad-web": "^0.0.31",
+    "@tonejs/midi": "^2.0.28",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "electron": "^45.2.1",
+    "electron-builder": "^26.18.0",
+    "electron-vite": "^6.0.0",
+    "hyphenation.en-us": "^0.2.1",
+    "hypher": "^0.2.5",
+    "immer": "^11.2.9",
+    "lucide-react": "^1.66.0",
+    "onnxruntime-web": "^1.31.1",
+    "playwright": "^1.64.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "syllable": "^5.0.1",
+    "tone": "^15.1.22",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5",
+    "zustand": "^5.0.16"
+  },
+  "dependencies": {
+    "jszip": "^3.10.2"
+  }
+}

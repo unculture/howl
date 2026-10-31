@@ -1,0 +1,76 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Queue rather than cancel, so a run is never killed halfway through replacing the release asset.
+concurrency:
+  group: build-windows
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - run: npm ci
+
+      - name: Cache Whisper model
+        uses: actions/cache@v4
+        with:
+          path: resources/models
+          key: whisper-${{ hashFiles('scripts/fetch-models.mjs') }}
+
+      - run: npm run models:fetch
+
+      - run: npm test
+
+      - run: npm run build:win
+
+      - name: Launch the packaged app
+        run: npm run test:smoke -- release/win-unpacked/howl.exe
+
+      - name: Upload smoke test screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-screenshots
+          path: test-output/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: howl-windows
+          path: release/howl-setup.exe
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Publish to the Tune Toy release
+        if: github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=tune-toy-latest
+          TITLE="Tune Toy (latest build)"
+          NOTES="Built from ${GITHUB_SHA::7}. Download howl-setup.exe and run it. Windows may warn because it is unsigned: choose More info, then Run anyway."
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release edit "$TAG" --title "$TITLE" --notes "$NOTES"
+          else
+            gh release create "$TAG" --title "$TITLE" --notes "$NOTES" --target "$GITHUB_SHA" --latest
+          fi
+          gh release upload "$TAG" release/howl-setup.exe --clobber
